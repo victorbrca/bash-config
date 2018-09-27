@@ -1,0 +1,32 @@
+#
+## about:fzf aliases
+#
+
+## Additional options not enabled
+# Shows dir on local with depth 1
+# _fzf_compgen_dir() {
+#   fd --type d -i --hidden --follow -d 1 --exclude ".git" . "$1"
+# }
+
+# # Shows file on local depth 1
+# _fzf_compgen_path() {
+#   fd --hidden --follow -d 1 --exclude ".git" . "$1"
+# }
+
+# # Modifies the defaul command to use 'fd'
+# export FZF_DEFAULT_COMMAND='fd --type f'
+# # Modifies the defaul command to use 'fd' with depth 1
+# export FZF_DEFAULT_COMMAND='fd --type d -i --follow -d 1 --exclude .git'
+
+# Settings for fzf
+if command -v fzf > /dev/null ; then
+  export FZF_COMPLETION_TRIGGER='**'
+  # Cycle with tab
+  export FZF_DEFAULT_OPTS='--bind tab:down --cycle'
+  . /usr/share/fzf/key-bindings.bash
+  . /usr/share/fzf/completion.bash
+  # help:preview:Interactive preview for files in a folder
+  alias preview="fzf --preview 'bat --color \"always\" {}' --preview-window=right:60%"
+else
+  echo "[bash-config] fzf is not installed"
+fi
