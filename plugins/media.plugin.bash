@@ -22,14 +22,16 @@ alias playm='mplayer -vo xv '
 alias playmrt='mplayer -vo xv -vf rotate '
 
 # help:rotate270:Rotates specified pictures 270 degrees
-rotate270 () { 
+rotate270 ()
+{ 
   for i in "$@" ; do
     convert -rotate 270 "$i" "$i"
   done
 }
 
 # help:rezmovie:Shrinks movie to 50% (with a new name)
-rezmovie () {
+rezmovie ()
+{
   unset file
   if [ "$#" -ne 1 ] ; then
     echo "Please provide a filename"
@@ -47,4 +49,13 @@ rezmovie () {
   extension=$(basename "$file" | awk -F . '{print "."$NF}')
   filename=$(basename "$file" | awk -F$extension '{print $1}')
   ffmpeg -i "$file" -vf scale=iw/2:-1 "${filename}_lowrez${extension}"
+}
+
+# help:cannon-raw:Converts canon raw file to jpg in a folder
+canon-raw ()
+{
+  for i in *.CR2
+    do dcraw -c -w $i | ppmtojpeg > `basename $i CR2`jpg
+    echo $i done
+  done
 }
