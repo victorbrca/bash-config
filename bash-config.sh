@@ -35,7 +35,7 @@ if [ -f "${bash_config_dir}/lib/bash-colors" ] ; then
 fi
 
 # Sets up usage
-usage="${BWhite}bash-config${Color_Off} [install|list|enable|disable] \
+usage="${BWhite}bash-config${Color_Off} [install|upgrade|list|enable|disable] \
 {-p [plugin1,plugin2]|-t [theme1,theme2]}"
 
 
@@ -176,7 +176,7 @@ _list_plugins_and_themes ()
 _install_bash_config ()
 {
   clear
-  echo -e 'Warning!! Running the install will overwrite your config with files from the current dir. Proceed with caution.'
+  echo -e 'Warning!! Running the install will overwrite your config with files from the current dir. \nIf this is an upgrade, run "bash-config upgrade".\n'
   read -p "Hit \"Enter\" to continue or \"Ctrl+c\" to quit: "
 
   if [[ ! -d lib && ( ! -d plugins && ! -d themes) && ( ! -f bash-config.sh && ! -f bash-config.conf ) ]] ; then
@@ -203,6 +203,59 @@ _install_bash_config ()
   echo -e "Copying bash-config.sh to ${HOME}/bin... \c"
   mkdir -p "${HOME}/bin"
   cp bash-config.sh "${HOME}/bin/." && echo "ok" || { echo "failed" ; exit 1 ; }
+}
+
+_upgrade ()
+{
+  local file_type
+
+  if [[ ! -d lib && ( ! -d plugins && ! -d themes) && ( ! -f bash-config.sh && ! -f bash-config.conf ) ]] ; then
+    echo "Please run this script from the downloaded directory."
+    exit 1
+  elif [ ! -d "$bash_config_dir" ] ; then
+    echo "I can't find a bash-config directory. If you are trying to install, use the \"install\" option"
+    exit 1
+  fi
+
+  mkdir -p /tmp/bash-plugins
+  echo -e "Backing up enabled plugins... \c"
+  find "${bash_config_plugins_folder}/enabled" -type l | xargs ls -l | awk '{print $9 "\t" $11}' > \
+   /tmp/bash-plugins/enabled.plugins && echo "ok" || { echo "failed" ; exit 1 ; }
+  echo -e "Backing up enabled themes... \c"
+  find "${bash_config_themes_folder}/enabled" -type l | xargs ls -l | awk '{print $9 "\t" $11}' > \
+   /tmp/bash-plugins/enabled.themes && echo "ok" || { echo "failed" ; exit 1 ; }
+
+  echo -e "Copying files... \c"
+  cp -a lib plugins themes bash-config.conf "${bash_config_dir}/." && echo ok || \
+   { echo "failed" ; exit 1 ; }
+
+  echo -e "Copying new bash-config.sh to ${HOME}/bin... \c"
+  mkdir -p "${HOME}/bin"
+  cp bash-config.sh "${HOME}/bin/." && echo "ok" || { echo "failed" ; exit 1 ; }
+
+  echo -e "Restoring plugins... \c"
+  cd "${bash_config_plugins_folder}/enabled"
+  cat /tmp/bash-plugins/enabled.plugins | while read line ; do
+    plugin_name=$(echo $line '{print $1}')
+    ln -sf "$(echo $line | awk '{print $2}')" "$(echo $line | awk '{print $1}')" \
+     && echo "Enabled ${plugin_name%%.plugin.bash}" \
+     || echo "Could not enable ${plugin_name%%.plugin.bash}"
+  done
+
+  # Removing default theme
+  cd "${bash_config_themes_folder}/enabled"
+  for file in $(find . -type l) ; do 
+    unlink $file
+  done
+
+  # Restoring
+  echo -e "Restoring themes... \c"
+  cat /tmp/bash-plugins/enabled.themes | while read line ; do
+    plugin_name=$(echo $line | awk '{print $1}')
+    ln -sf "$(echo $line | awk '{print $2}')" "$(echo $line | awk '{print $1}')" \
+     && echo "Enabled ${plugin_name%%.plugin.bash}" \
+     || echo "Could not enable ${plugin_name%%.plugin.bash}"
+  done
 }
 
 _display_aliases ()
@@ -235,6 +288,9 @@ elif [[ $# -eq 1 ]] ; then
       ;;
     install)
       _install_bash_config
+      ;;
+    upgrade)
+      _upgrade
       ;;
     aliases) _display_aliases ;;
     -h)
