@@ -62,7 +62,7 @@ _cd__history ()
 }
 
 # help:cd:Changes cd to save history
-alias cd='_cd__add__history $1'
+alias cd='_cd__add__history'
 
 # help:hcd:Shows or selects cd history 
 alias hcd='_cd__history'
