@@ -43,6 +43,7 @@ git-update ()
       commit_file="$1"
     else
       commit_message="$1"
+    fi
   elif [[ $# -eq 2 ]] ; then
     if [ -f "$1" ] ; then
       commit_file="$1"
@@ -59,7 +60,7 @@ git-update ()
 
   echo -e "\n${Blinking_White}Updating git Repo${Color_Off}\n"
 
-  echo -e "Commit message will be ${commit_message}\n"
+  echo -e "Commit message will be \"${commit_message}\"\n"
   read -p "Hit \"Enter\" to continue or \"Ctrl+c\" to quit: "
 
   # add local changes
