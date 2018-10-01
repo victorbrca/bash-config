@@ -233,10 +233,11 @@ _upgrade ()
   mkdir -p "${HOME}/bin"
   cp bash-config.sh "${HOME}/bin/." && echo "ok" || { echo "failed" ; exit 1 ; }
 
-  echo -e "Restoring plugins... \c"
+  echo -e "\n**Restoring plugins"
   cd "${bash_config_plugins_folder}/enabled"
   cat /tmp/bash-plugins/enabled.plugins | while read line ; do
-    plugin_name=$(echo $line '{print $1}')
+    plugin_name=$(echo $line | awk '{print $1}' | sed 's/.*\///')
+    # plugin_name=${plugin_name%%.plugin.bash}
     ln -sf "$(echo $line | awk '{print $2}')" "$(echo $line | awk '{print $1}')" \
      && echo "Enabled ${plugin_name%%.plugin.bash}" \
      || echo "Could not enable ${plugin_name%%.plugin.bash}"
@@ -249,12 +250,12 @@ _upgrade ()
   done
 
   # Restoring
-  echo -e "Restoring themes... \c"
+  echo -e "\n**Restoring themes"
   cat /tmp/bash-plugins/enabled.themes | while read line ; do
     plugin_name=$(echo $line | awk '{print $1}')
     ln -sf "$(echo $line | awk '{print $2}')" "$(echo $line | awk '{print $1}')" \
-     && echo "Enabled ${plugin_name%%.plugin.bash}" \
-     || echo "Could not enable ${plugin_name%%.plugin.bash}"
+     && echo "Enabled ${plugin_name%%.theme.bash}" \
+     || echo "Could not enable ${plugin_name%%.theme.bash}"
   done
 }
 
