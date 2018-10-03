@@ -7,7 +7,7 @@ if ! command -v openssl > /dev/null ; then
   return 1
 fi
 
-_view ()
+_ssl-tool_view ()
 {
   local usage file file_type
   usage="ssl-tool view [file]"
@@ -19,6 +19,11 @@ _view ()
   test -f "$file" || { echo "File \"${file}\" doesn't exist" ; return 1 ; }
   file_type="$(file $file | awk '{print $2}')"
   case "$file" in
+    *key*|*.key)
+        if [[ $file_type =~ (ASCII|PEM) ]] ; then
+          openssl rsa -noout -text -in "$1" | \less
+        fi
+        ;;
     *.crt|*.cer|*.cert)
         if [[ $file_type =~ (ASCII|PEM) ]] ; then
           openssl x509 -in "$1" -text -noout | \less
@@ -33,7 +38,7 @@ _view ()
         openssl x509 -inform der -in "$1" -text -noout | \less
         ;;
     *.csr)
-        if [[ $file_type =~ (ASCII|PEM) ]] ; then
+        if [[ $file_type =~ (ASCII|PEM|RFC1421) ]] ; then
           openssl req -noout -text -in "$1" | \less
         elif [[ $file_type =~ (DER|data) ]] ; then
           openssl req -noout -text -inform der -in "$1" | \less
@@ -43,12 +48,16 @@ _view ()
         openssl pkcs12 -in "$1" | \less
         ;;
     *.p7b)
-        openssl pkcs7 -print_certs -in "$1" | openssl x509 -text -noout | \less
+        if [[ $file_type =~ (ASCII|PEM|RFC1421) ]] ; then
+          openssl pkcs7 -print_certs -in "$1" | openssl x509 -text -noout | \less
+        elif [[ $file_type =~ (DER|data) ]] ; then
+          openssl pkcs7 -inform DER -print_certs -in "$1" | openssl x509 -text -noout | \less
+        fi
         ;;
   esac
 }
 
-_connect_download ()
+_ssl-tool_connect_download ()
 {
   local OPTIND OPT OPTERR usage port cafile opts server action
   usage="ssl-tool [connect|download] [server] {-p port|-c certificate.cer}"
@@ -95,7 +104,7 @@ _connect_download ()
     esac
 }
 
-_convert ()
+_ssl-tool_convert ()
 {
   local usage file out_format file_type answer
   usage="ssl-tool convert [file] [format]"
@@ -151,30 +160,103 @@ _convert ()
       openssl x509 -in "$file" -outform der -out "${file%.*}.der"
     fi
 
-  # .p7b to .cer (combined)
-  elif [[ $file =~ .p7b ]] && [[ $out_format  =~ c(er|rt) ]] ; then
-    echo "The output file \"${file%.*}.${out_format}\" will have all certs combined"
-    openssl pkcs7 -in "$file" -print_certs -out "${file%.*}.${out_format}"
-
   else
     echo "Could not do anything"
   fi
 }
 
-# help:ssl-tool:Connects, downloads, converts, or view certificate in multiple formats
-ssl-tool ()
+_ssl-tool_extract ()
 {
-  case $1 in
-    view|read)
-        _view $2 ;;
-    connect|download)
-        _connect_download $@ ;;
-    convert)
-        _convert $2 $3 ;;
+  local usage file file_type p7b_certs p12_certs
+  usage="ssl-tool extract [file]"
+  if [[ $# -ne 1 ]] ; then
+    echo "$usage"
+    return 0
+  fi
+  file="$1"
+  test -f "$file" || { echo "File \"${file}\" doesn't exist" ; return 1 ; }
+  file_type="$(file $file | awk '{print $2}')"
+  case "$file" in
+    *.p7b)
+        if [[ $file_type =~ (ASCII|PEM) ]] ; then
+          p7b_certs="$(openssl pkcs7 -in "$file" -print_certs | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p')"
+        elif [[ $file_type =~ (DER|data) ]] ; then
+          p7b_certs="$(openssl pkcs7 -inform DER -in "$file" -print_certs | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p')"
+        else
+          echo "Could not determine format of p7b file for extraction"
+          return 1
+        fi
+        # Server certificate
+        echo "$p7b_certs" | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' -e '/-END CERTIFICATE-/q' > "${file%.*}.server.cer"
+        # Root certificate
+        echo "-----BEGIN CERTIFICATE-----" > "${file%.*}.root.cer"
+        echo "$p7b_certs" | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sed -e '1,/-BEGIN CERTIFICATE-/ d' >> "${file%.*}.root.cer"
+        ;;
+    *.p12)
+        p12_certs="$(openssl pkcs12 -info -nodes -in "$file" 2> /dev/null)"
+        # Private key
+        echo "$p12_certs" | sed -ne '/-BEGIN PRIVATE KEY-/,/-END PRIVATE KEY-/p' > "${file%.*}.private.key.cer"
+        # Server certificate
+        echo "$p12_certs" | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' -e '/-END CERTIFICATE-/q' > "${file%.*}.server.cer"
+        # Root certificate
+        echo "-----BEGIN CERTIFICATE-----" > "${file%.*}.root.cer"
+        echo "$p12_certs" | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sed -e '1,/-BEGIN CERTIFICATE-/ d' >> "${file%.*}.root.cer"
+        ;;
   esac
 }
 
+_ssl-tool_check ()
+{
+  local usage file
+  usage="ssl-tool check [key file]\nssl-tool check [cer or pem file] date"
+  if [[ $# -eq 1 ]] ; then
+    file="$1"
+    case "$file" in
+      *key*|*.key)
+          openssl rsa -in "$file" -check 2> /dev/null | head -1 
+          ;;
+      *)
+          echo "Wrong option"
+          echo -e "$usage"
+          return 1
+    esac
+  elif [[ $# -eq 2 ]] && [[ $1 =~ (cer|pem) ]] && [[ "$2" == "date" ]] ; then
+    file="$1"
+    test -f "$file" || { echo "File \"${file}\" doesn't exist" ; return 1 ; }
+    file_type="$(file $file | awk '{print $2}')"
+    if [[ $file_type =~ (ASCII|PEM) ]] ; then
+      openssl x509 -noout -in "$file" -dates
+    elif [[ $file_type =~ (DER|data) ]] ; then
+      openssl x509 -noout -inform der -in "$file" -dates
+    fi
+  fi
+}
 
+# help:ssl-tool:Connects, downloads, converts, extracts or view certificate in multiple formats
+ssl-tool ()
+{
+  local usage
+  usage="ssl-tool view connect download convert extract check"
+  case $1 in
+    view|read)
+        _ssl-tool_view $2 ;;
+    connect|download)
+        _ssl-tool_connect_download $@ ;;
+    convert)
+        _ssl-tool_convert $2 $3 ;;
+    extract)
+        _ssl-tool_extract $2 ;;
+    check)
+        _ssl-tool_check $2 $3 ;;
+    *)
+        echo "Unknown option"
+        echo "$usage"
+        return 1
+        ;;
+  esac
+}
+
+# To add
 
 # Combine several certificates in PKCS7 (P7B) file:
 # openssl crl2pkcs7 -nocrl -certfile child.crt -certfile ca.crt -out example.p7b
@@ -190,17 +272,13 @@ ssl-tool ()
 # openssl genrsa -out private.key 2048
 # Remove Passphrase from Key
 # openssl rsa -in certkey.key -out nopassphrase.key
-# Verify Private Key
-# openssl rsa -in certkey.key –check
 # Create CSR using existing private key
-# openssl req –out certificate.csr –key existing.key –new
-# Check contents of PKCS12 format cert
-# openssl pkcs12 –info –nodes –in cert.p12
+# openssl req -out certificate.csr -key existing.key -new
+
+# -- Convert
 # Convert PKCS12 format to PEM certificate
-# openssl pkcs12 –in cert.p12 –out cert.pem
+# openssl pkcs12 -in cert.p12 -out cert.pem
 
 # -- Check
-# Check PEM File Certificate Expiration Date
-# openssl x509 -noout -in certificate.pem -dates
 # Check Certificate Expiration Date of SSL URL
 # openssl s_client -connect secureurl.com:443 2>/dev/null | openssl x509 -noout –enddate
