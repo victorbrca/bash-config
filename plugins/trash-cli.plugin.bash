@@ -34,7 +34,7 @@ rm () {
         echo "Removed $1 with real rm"
         $rm_command $*
       else
-        echo "Removed $1 with trash-cli"
+        echo "Removed with trash-cli"
         trash-put $*
       fi
     fi
