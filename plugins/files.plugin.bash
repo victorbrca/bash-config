@@ -127,16 +127,17 @@ dud ()
 extract () {
 if [ -f $1 ] ; then
   case $1 in
-    *.tar.bz2)   tar -xjvf $1     ;;
-    *.tar.gz)    tar -xzvf $1     ;;
+    *.tar.bz2)   tar -xjvf $1    ;;
+    *.tar.gz)    tar -xzvf $1    ;;
     *.tar.xz)    tar -xvf $1     ;;
     *.rar)       unrar x $1      ;;
     *.gz)        gunzip -d $1    ;;
-    *.tar)       tar -xvf $1      ;;
-    *.tbz2)      tar -xvjf $1     ;;
-    *.tgz)       tar -xzvf $1     ;;
+    *.tar)       tar -xvf $1     ;;
+    *.tbz2)      tar -xvjf $1    ;;
+    *.tgz)       tar -xzvf $1    ;;
+    *.xz)        unxz $1         ;;
     *.zip)       unzip $1        ;;
-    *)           echo "'$1' cannot be extracted via >extract<" ;;
+    *)           echo "'$1' cannot be extracted via extract" ;;
   esac
 else
   echo "'$1' is not a valid file"
