@@ -90,9 +90,16 @@ _get_battery_info () {
   fi
 }
 
+# Sets up the prompt
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+  ps1_header="\u@\h"
+else
+  ps1_header="\u"
+fi
+
 PS1="\`if [ \$? = 0 ]; then echo ${PS_Green}●${PS_Color_Off}; else \
 echo ${PS_Red}●${PS_Color_Off}; fi\`\
-─[${PS_Yellow}\u${PS_Color_Off}]─[${PS_Blue}\w${PS_Color_Off}]\
+─[${PS_Yellow}${ps1_header}${PS_Color_Off}]─[${PS_Blue}\w${PS_Color_Off}]\
 \`if [ \$battery_info = y ] ; then _get_battery_info ; fi\`\
 \`if [ \$sudo_info = y ] ; then _sudo_status ; fi\`\
 \`_git_branch\`─●\
