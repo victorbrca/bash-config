@@ -71,7 +71,7 @@ git-update ()
     sleep .5
 
     echo -e "\n${UYellow}Comitting changes${Color_Off}"
-    git commit -m "$commit_message" -v "$commit_file" || { echo -e "${Red}Failed${Color_Off}" ; return 1 ; }
+    git commit -m "$commit_message" -v "${commit_file:-.}" || { echo -e "${Red}Failed${Color_Off}" ; return 1 ; }
   else
     echo -e "\n${UGreen}No local modified files to add"
   fi
