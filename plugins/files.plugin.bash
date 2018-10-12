@@ -2,7 +2,6 @@
 ## about:File manipulation aliases
 #
 
-
 # help:bakfile:Backup a file with date
 bakfile () {
   FILE="$1"
@@ -147,13 +146,6 @@ fi
 # help:path:Shows the content of path in new line
 path () {
   echo $PATH | tr ':' '\n'
-}
-
-# help:vilf:Vim into the last modified file
-vilf () {
-  unset FILE
-  FILE=$(/bin/ls -1tr | tail -n1)
-  vim $FILE
 }
 
 # help:lsf:Shows child folders in new line
