@@ -5,9 +5,6 @@
 # Helps mispeling of dirs
 shopt -s cdspell
 
-# Let's setup the search path for the cd command
-CDPATH=.
-
 # Ignores case for auto completion
 bind "set completion-ignore-case on"
 
