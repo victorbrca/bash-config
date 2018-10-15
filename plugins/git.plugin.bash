@@ -100,3 +100,54 @@ git-update ()
   git config credential.helper store
   echo -e "\n${UGreen}Complete${Color_Off}\n"
 }
+
+# help:git-commit-show:fzf show commits in directory
+git-commit-show () 
+{
+  git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"  | \
+   fzf --ansi --no-sort --reverse --tiebreak=index --preview \
+   'f() { set -- $(echo -- "$@" | grep -o "[a-f0-9]\{7\}"); [ $# -eq 0 ] || git show --color=always $1 ; }; f {}' \
+   --header "Git commit browser" \
+   --bind "j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort,ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF" --preview-window=right:60%
+}
+
+# help:gitcmtshow:fzf show commits in directory
+alias gitcmtshow='git-commit-show'
+
+# help:git-log-show:fzf show files and then commits in directory
+git-log-show ()
+{
+  trap "return 1" INT SIGINT
+  while true ; do
+    get_commit_hash=$(fzf --ansi --no-sort --reverse --tiebreak=index --preview 'git log --graph --color=always {}' --preview-window=right:60% \
+    --header "File list" \
+    --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort' | \
+     xargs git log --format="%h [%ar] %-s%w(0,0,9)" --follow --all 2> /dev/null)
+    if [ ! "$get_commit_hash" ] ; then
+      return 1
+    fi
+    
+    echo "$get_commit_hash" | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git show --color=always {1}' --preview-window=right:60% \
+    --header "Hash list" \
+    --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'
+
+  done
+}
+
+# help:gitlogshow:fzf show files and then commits in directory
+alias gitlogshow='git-log-show'
+
+# help:git-diff-show:fzf show changed files with diff-so-fancy
+git-diff-show ()
+{
+  git status -s | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git diff --color {2} | diff-so-fancy' \
+  --preview-window=right:60% --header "Diff list" \
+  --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'
+}
+
+# help:git-diff-show:fzf show changed files with diff-so-fancy
+alias gitdifshow='git-diff-show'
