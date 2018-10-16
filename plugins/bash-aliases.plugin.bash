@@ -228,3 +228,8 @@ transfer ()
   cat "$tmpfile"
   rm -f "$tmpfile"
 }
+
+# help:diff:Changes diff to use color, diff-so-fancy and bat
+diff () {
+  command diff -u --color=always "$1" "$2" | diff-so-fancy | bat
+}
