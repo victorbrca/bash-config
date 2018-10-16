@@ -97,10 +97,13 @@ else
   ps1_header="\u"
 fi
 
-PS1="\`if [ \$? = 0 ]; then echo ${PS_Green}●${PS_Color_Off}; else \
+export PS1="\`if [ \$? = 0 ]; then echo ${PS_Green}●${PS_Color_Off}; else \
 echo ${PS_Red}●${PS_Color_Off}; fi\`\
 ─[${PS_Yellow}${ps1_header}${PS_Color_Off}]─[${PS_Blue}\w${PS_Color_Off}]\
 \`if [ \$battery_info = y ] ; then _get_battery_info ; fi\`\
 \`if [ \$sudo_info = y ] ; then _sudo_status ; fi\`\
 \`_git_branch\`─●\
 \n└─● "
+
+export PS2="${PS_Green}>>${PS_Color_Off} "
+export PS4="${PS_Purple}++${PS_Color_Off} "

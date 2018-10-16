@@ -19,6 +19,7 @@ sudo_icon="⏳"
 #Colors
 PS_Green='\[\e[32m\]'
 PS_Red='\[\e[31m\]'
+PS_Purple='\[\e[35m\]'
 PS_Color_Off='\[\e[0m\]'
 
 _sudo_status () {
@@ -123,8 +124,11 @@ else
   ps1_header="\u"
 fi
 
-PS1="${On_Black} \`if [ \$? = 0 ]; then echo ${PS_Green}✓${PS_Color_Off}; \
+export PS1="${On_Black} \`if [ \$? = 0 ]; then echo ${PS_Green}✓${PS_Color_Off}; \
 else echo ${PS_Red}✗${PS_Color_Off}; fi\`${Yellow}${On_Black} $ps1_header \
 \`if [ \$battery_info = y ] ; then _get_battery_info ; fi\`\`if [ \$sudo_info \
 = y ] ; then _sudo_status ; fi\`${Black}${On_Blue}${Blue}${On_Blue}\
 ${White}${On_Blue}\w \`_git_colors\`${Color_Off} "
+
+export PS2="${PS_Green}>>${PS_Color_Off} "
+export PS4="${PS_Purple}++${PS_Color_Off} "
