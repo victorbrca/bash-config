@@ -17,6 +17,10 @@ sudo_info="y"
 # Choose from: ⌚, ⏳, ✰, ⵌ, ✷
 sudo_icon="ⵌ"
 
+# For online status, make sure to also add the line below to cron
+# * * * * * /bin/bash ~/.bash-config/themes/lib/online-check.sh
+online_status="y"
+
 # Reset
 PS_Color_Off='\[\e[0m\]'
 
@@ -90,8 +94,17 @@ _get_battery_info () {
   fi
 }
 
+_online_status ()
+{
+  if [ -f /tmp/bash-config/offline ] ; then
+    echo -e "${Func_Red}◉${Func_Color_Off}"
+  else
+    echo -e "${Func_Green}◉${Func_Color_Off}"
+  fi
+}
+
 # Sets up the prompt
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] ; then
   ps1_header="\u@\h"
 else
   ps1_header="\u"
@@ -102,7 +115,7 @@ echo ${PS_Red}●${PS_Color_Off}; fi\`\
 ─[${PS_Yellow}${ps1_header}${PS_Color_Off}]─[${PS_Blue}\w${PS_Color_Off}]\
 \`if [ \$battery_info = y ] ; then _get_battery_info ; fi\`\
 \`if [ \$sudo_info = y ] ; then _sudo_status ; fi\`\
-\`_git_branch\`─●\
+\`_git_branch\`─\`if [ \$online_status = y ] ; then _online_status ; else echo ● ; fi\`\
 \n└─● "
 
 export PS2="${PS_Green}>>${PS_Color_Off} "
