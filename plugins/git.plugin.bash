@@ -119,7 +119,7 @@ FZF-EOF" --preview-window=right:60%
 alias gitcmtshow='git-commit-show'
 
 # help:git-log-show:fzf show files and then commits in directory
-git-log-show ()
+git-file-show ()
 {
   trap "return 1" INT SIGINT
   while true ; do
@@ -139,7 +139,7 @@ git-log-show ()
 }
 
 # help:gitlogshow:fzf show files and then commits in directory
-alias gitlogshow='git-log-show'
+alias gitfileshow='git-file-show'
 
 # help:git-diff-show:fzf show changed files with diff-so-fancy
 git-diff-show ()
