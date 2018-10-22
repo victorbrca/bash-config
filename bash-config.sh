@@ -262,11 +262,11 @@ _upgrade ()
 _display_aliases ()
 {
   if [[ $# -eq 1 ]] ; then
-    if [ ! -e "${bash_config_plugins_folder}/enabled/${1}.plugin.bash" ] ; then
+    if [ ! -e ${bash_config_plugins_folder}/enabled/${1}*.plugin.bash ] ; then
       echo "Could not find plugin \"$1\""
       exit 1
     else
-      grep '# help:' "${bash_config_plugins_folder}/enabled/${1}.plugin.bash" \
+      grep -h '# help:' ${bash_config_plugins_folder}/enabled/${1}*.plugin.bash \
       | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
     fi
   else
