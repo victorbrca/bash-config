@@ -41,16 +41,30 @@ _git_branch ()
 
   gitbranch=$(git branch 2> /dev/null | grep '\*' | sed -e 's/* \(.*\)/\1/')
 
+  # We are in a Git folder
   if [ "$gitbranch" ] ; then
-    gitbranch="${gitbranch} "
-    gitstatus=$(git status -s)
-    modified="✚$(git status -s | wc -l)"
+    # Get the branch
+    gitinfo="${gitbranch} "
 
-    if [ "$gitstatus" ] ; then
-      printf " ${gitbranch} ${modified} "
+    # Get the full status
+    gitstatus=$(git status)
+
+    # Get count of modded files
+    modified="$(echo "$gitstatus" | grep -P '\t' | wc -l)"
+    if (( modified > 0 )) ; then
+      gitinfo="${gitinfo} ✚${modified}"
     else
-      printf " ${gitbranch} ✔ "
+      gitinfo="${gitinfo} ✔"
     fi
+
+    # Get ahead behind
+    ahead_behind=$(echo "$gitstatus"  | grep 'Your branch is' | awk '{print $4}')
+    case $ahead_behind in
+      ahead) gitinfo="${gitinfo} ↥" ;;
+      behind) gitinfo="${gitinfo} ↧" ;;
+    esac
+
+    printf " ${gitinfo} "
   fi
 }
 
