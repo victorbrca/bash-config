@@ -54,20 +54,36 @@ _sudo_status () {
 
 _git_branch () 
 {
-  local gitbranch gitstatus modified
+  local gitbranch gitinfo gitstatus ahead_behind modified
 
   gitbranch=$(git branch 2> /dev/null | grep '\*' | sed -e 's/* \(.*\)/\1/')
 
+  # We are in a Git folder
   if [ "$gitbranch" ] ; then
-    gitbranch="${gitbranch} "
-    gitstatus=$(git status -s)
-    modified="✚$(git status -s | wc -l)"
+    # Get the branch
+    gitinfo="${gitbranch} "
 
-    if [ "$gitstatus" ] ; then
-      printf "─[${Func_Purple}${gitbranch} ${modified}${Func_Color_Off}]"
+    # Get the full status
+    gitstatus=$(git status)
+
+    # Get ahead behind
+    ahead_behind=$(echo "$gitstatus"  | grep 'Your branch is' | awk '{print $4}')
+    case $ahead_behind in
+      ahead) ahead_behind=" ↥" ;;
+      behind) ahead_behind=" ↧" ;;
+      *) unset ahead_behind ;;
+    esac
+
+    # Get count of modded files
+    modified="$(echo "$gitstatus" | grep -P '\t' | wc -l)"
+    if (( modified > 0 )) ; then
+      gitinfo="─[${Func_Purple}${gitinfo} ✚${modified}${ahead_behind}${Func_Color_Off}]"
     else
-      printf "─[${Func_Green}${gitbranch} ✔${Func_Color_Off}]"
+      gitinfo="─[${Func_Green}${gitinfo} ✔${ahead_behind}${Func_Color_Off}]"
     fi
+
+
+    printf " ${gitinfo}"
   fi
 }
 
