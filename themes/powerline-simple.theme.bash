@@ -37,7 +37,7 @@ _sudo_status () {
 
 _git_branch () 
 {
-  local gitbranch gitstatus modified
+  local gitbranch gitstatus modified gitinfo ahead_behind
 
   gitbranch=$(git branch 2> /dev/null | grep '\*' | sed -e 's/* \(.*\)/\1/')
 
@@ -62,6 +62,7 @@ _git_branch ()
     case $ahead_behind in
       ahead) gitinfo="${gitinfo} ↥" ;;
       behind) gitinfo="${gitinfo} ↧" ;;
+      *) unset ahead_behind ;;
     esac
 
     printf " ${gitinfo} "
