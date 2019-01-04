@@ -3,22 +3,22 @@
 #
 
 # Media manipulation
-# help:renpic:
+# help:renpic:Rename files to in directory to [number].jpg
 alias renpic='e="1"; for i in `ls` ; do mv "$i" "$e.jpg" ; e=$(( e + 1 )) ; done'
 
-# help:rezpic50:
+# help:rezpic50:Resize images in a folder to 50%
 alias rezpic50='for i in * ; do convert -resize 50% "$i" "$i" ; done'
 
-# help:rezpic75:
+# help:rezpic75:Resize images in a folder to 75%
 alias rezpic75='for i in * ; do convert -resize 75% "$i" "$i" ; done'
 
-# help:rezpic20:
+# help:rezpic20:Resize images in a folder to 20%
 alias rezpic20='for i in * ; do convert -resize 20% "$i" "$i" ; done'
 
-# help:playm:
+# help:playm:Play video with mplayer
 alias playm='mplayer -vo xv '
 
-# help:playmrt:
+# help:playmrt:Play video rotated with mplayer
 alias playmrt='mplayer -vo xv -vf rotate '
 
 # help:rotate270:Rotates specified pictures 270 degrees
