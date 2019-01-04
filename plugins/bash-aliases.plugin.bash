@@ -233,3 +233,9 @@ transfer ()
 diff () {
   command diff -u --color=always "$1" "$2" | diff-so-fancy | bat
 }
+
+# help:aliases:Show loaded aliases
+aliases ()
+{
+  alias | grep $* | sed 's/^alias //' | sed "s/='/ /" | awk '{printf "%-15s", $1 ; $1=""; print $0}' | sed "s/'$//"
+}
