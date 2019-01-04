@@ -10,5 +10,5 @@ if command -v lpass > /dev/null ; then
   alias lpas='lpass show -G'
 
   # help:lpasc:lpass copy password
-  alias lpaspc='lpass show --password -G -c'
+  alias lpascp='lpass show --password -G -c'
 fi
