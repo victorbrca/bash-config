@@ -5,9 +5,6 @@
 # Helps mispeling of dirs
 shopt -s cdspell
 
-# Ignores case for auto completion
-bind "set completion-ignore-case on"
-
 # Sets up arrow to search history
 bind '"\e[A": history-search-backward'
 
