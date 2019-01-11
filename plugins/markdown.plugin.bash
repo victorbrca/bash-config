@@ -3,10 +3,10 @@
 #
 
 if ! command -v pandoc > /dev/null ; then
-  echo "Please install pandoc before enabling the markdown plugin"
+  echo "[bash-config] Please install pandoc before enabling the markdown plugin"
   return 0
 elif ! command -v lynx > /dev/null ; then
-  echo "Please install lynx before enabling the markdown plugin"
+  echo "[bash-config] Please install lynx before enabling the markdown plugin"
   return 0
 fi
 
