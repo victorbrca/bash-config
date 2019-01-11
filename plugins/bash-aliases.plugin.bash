@@ -5,6 +5,19 @@
 # regex highlight for grep
 alias grep='grep --color=auto'
 
+# Setup the tree command
+if command -v tree > /dev/null ; then
+  tree_cmd () {
+    tree -L 1 -tF
+  }
+else
+  tree_cmd () {
+    echo "."
+    ls --color=always -1F | awk -v lcnt="$line_cnt" '{if(NR!=lcnt){print "├── " $0;}else{print "└── " $0;}}'
+    echo
+  }
+fi
+
 _cd__add__history ()
 {
   ## Adding elements
@@ -29,9 +42,9 @@ _cd__add__history ()
 
   ## Changes the directory
   if [ "$1x" = "x" ] ; then
-    command cd ; tree -L 1 -tF
+    command cd ; tree_cmd
   else
-    command cd "$1" ; tree -L 1 -tF
+    command cd "$1" ; tree_cmd
   fi
 }
 
