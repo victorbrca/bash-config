@@ -12,10 +12,10 @@ bind '"\e[A": history-search-backward'
 bind '"\e[B":history-search-forward'
 
 # Shows possible matches instead of ringing bell
-set show-all-if-ambiguous on
+bind "set show-all-if-ambiguous on"
 
 # Ignores case for auto completion
-set completion-ignore-case on
+bind "set completion-ignore-case on"
 
 # Matches hidden files (usually already enabled)
 set match-hidden-files on
