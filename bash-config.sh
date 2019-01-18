@@ -84,14 +84,22 @@ _enable ()
     elif [ -e "$dest_file" ] ; then
       echo "The ${file_type/s/} \"$file_to_enable\" is already enabled, skipping"
     else
+      # Disable current theme
+      if [ "$file_type" = "themes" ] ; then
+        current_enabled_theme="$(find ${bash_config_dir}/${file_type}/enabled -type l)"
+        if [ -L "$current_enabled_theme" ] ; then
+          echo "Disabling the current theme first"
+          unlink "$current_enabled_theme"
+        fi
+      fi
       ln -sf "$source_file" "$dest_file"
       echo "Enabled the ${file_type/s/} \"$file_to_enable\""
     fi
   done
 
   IFS="$old_ifs"
-  sleep 1.5
-  _list_plugins_and_themes
+  # sleep 1.5
+  # _list_plugins_and_themes
 }
 
 _disable ()
@@ -138,8 +146,8 @@ _disable ()
   done
 
   IFS="$old_ifs"
-  sleep 1.5
-  _list_plugins_and_themes
+  # sleep 1.5
+  # _list_plugins_and_themes
 }
 
 _list_plugins_and_themes ()
