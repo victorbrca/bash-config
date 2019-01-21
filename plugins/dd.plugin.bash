@@ -15,7 +15,7 @@ dd_iso ()
     device="$2"
   fi
 
-  if [[ "${iso##*.}" != "iso" ]] ; then
+  if [[ ${iso##*.} != iso && ${iso##*.} != img ]] ; then
     echo "The first parameter should be an iso"
     return 1
   elif [[ ! -b "$device" ]] ; then
