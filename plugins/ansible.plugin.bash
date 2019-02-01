@@ -114,7 +114,7 @@ ansi-template ()
     return 0
   fi
 
-  avalable_modules="archive,file,copy,user,group,template,systemd,unarchive"
+  avalable_modules="archive,fetch,file,copy,user,group,template,service,shell,synchronize,systemd,unarchive"
 
   # Let's see if we have highlight
   if command -v highlight > /dev/null ; then
@@ -219,13 +219,23 @@ ansi-template ()
   become: yes                           # Run actions as root
 " | $cat_cmd
       ;;
+    service)
+      echo "
+- name: Manage services
+  systemd: 
+    name: foo.service                         # Name of the service
+    state: reloaded|restart|started|stopped   # 
+    enabled: no|yes                           # Whether the service should start on boot
+  become: yes                                 # Run actions as root
+" | $cat_cmd
+      ;;
     systemd)
       echo "
 - name: Manage services
   systemd: 
     name: foo.service                         # Name of the service
     state: reloaded|restart|started|stopped   # 
-    enabled: yes|no                           # Whether the service should start on boot
+    enabled: no|yes                           # Whether the service should start on boot
     scope: system*|user|global                # run systemctl within a given service manager scope
     daemon_reload: no*|yes                    # run daemon-reload before doing any other operations, to make sure systemd has read any changes
   become: yes                                 # Run actions as root
@@ -246,6 +256,44 @@ ansi-template ()
   become: yes             # Run actions as root
 " | $cat_cmd
       ;;
+    fetch)
+      echo "
+- name: Fetches a file from remote nodes
+  fetch:
+    src: /tmp/uniquefile   # The file on the remote system to fetch. This must be a file, not a directory.
+    dest: /tmp/special/    # A directory to save the file into. File will saved with [dest]/[src_hostname]/[absolut src]
+    flat: yes              # Allows you to override the default behavior of appending hostname/path/to/file to the destination
+  become: yes              # Run actions as root
+" | $cat_cmd
+      ;;
+    synchronize)
+      echo "
+- name: A wrapper around rsync to make common tasks in your playbooks quick and easy
+  synchronize:
+    src: some/relative/path     # Path on the source host that will be synchronized to the destination
+    dest: /some/absolute/path   # Path on the destination host that will be synchronized from the source
+    recursive: no|yes           # Recurse into directories
+    mode: push*|pull            # Specify the direction of the synchronization (push: localhost=>remote)
+    owner: no|yes               # Preserve owner (super user only)
+    checksum: no*|yes           # Skip based on checksum, rather than mod-time & size
+    perms: no|yes               # Preserve permissions
+    links: no|yes               # Copy symlinks as symlinks.
+    archive: no*|yes            # Mirrors the rsync archive flag, enables recursive, links, perms, times, owner, group flags and -D
+  become: no                    # stops synchronize trying to sudo locally
+" | $cat_cmd
+      ;;
+    shell)
+      echo "
+- name: Execute commands in nodes
+  shell: somescript.sh >> somelog.txt   # The command to be run. Use \"|\" for multiline commands
+  args:
+    chdir: somedir/                     # cd into this directory before running the command
+    creates: somelog.txt                # A filename, when it already exists, this step will not be run
+    removes: somelog.txt                # A filename, when it does not exist, this step will not be run
+  become: yes                           # Enable the become flag
+  become_user: foo                      # Run actions as foo
+" | $cat_cmd
+      ;;
   esac
 }
 
@@ -253,4 +301,4 @@ ansi-template ()
 alias ansi-tmplt='ansi-template'
 
 complete -W 'user file' ansi-get
-complete -W 'archive copy file group systemd template unarchive user' ansi-template ansi-tmplt
+complete -W 'archive copy fetch file group service systemd shell synchronize template unarchive user' ansi-template ansi-tmplt
