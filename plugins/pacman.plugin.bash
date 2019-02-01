@@ -84,3 +84,8 @@ pac ()
   esac
 }
 
+
+complete -W 'install update search list remove upgrade' pac
+
+
+## Add paccache as clean
