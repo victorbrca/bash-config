@@ -58,3 +58,6 @@ aur ()
         ;;
   esac
 }
+
+
+complete -W 'install update search list remove upgrade' aur
