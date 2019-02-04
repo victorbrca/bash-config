@@ -84,6 +84,16 @@ pac ()
   esac
 }
 
+# help:last_installed:List pacman installed packages
+last_installed ()
+{
+  if [ -f "${HOME}/bin/var/log/$(hostname)-pacman-install.log" ] ; then
+    tail -n20 "${HOME}/bin/var/log/$(hostname)-pacman-install.log"
+  else
+    echo "Could not find install packages personal log. Will display system install"
+    cat /var/log/pacman.log | grep -i installed | tail -n20
+  fi
+}
 
 complete -W 'install update search list remove upgrade' pac
 
