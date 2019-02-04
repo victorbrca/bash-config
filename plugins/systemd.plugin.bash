@@ -46,17 +46,17 @@
 #help:sc:systemctl {user}[service] [start|stop|restart|status|enable|disable]
 sc ()
 {
-  usage="Usage: sctl {user}[service] [start|stop|restart|status|enable|disable]"
+  usage="Usage: sc {user}[service] [start|stop|restart|status|enable|disable]"
 
   if [[ "$1" == "user" ]] ; then
     service="$2"
     action="$3"
+    systemctl --user "$action" "$service"
   else
     service="$1"
     action="$2"
+    systemctl "$action" "$service"
   fi
-
-  systemctl "$action" "$service"
 }
 
 
