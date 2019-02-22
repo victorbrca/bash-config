@@ -83,6 +83,20 @@ alias hcd='_cd__history'
 # help:cdh:Shows or selects cd history 
 alias cdh='_cd__history'
 
+# help:mkcd:Creates a folder and cd's into it
+mkcd ()
+{
+  if [ $# -ne 1 ] ; then
+    echo "Please provide a folder name"
+    return 1
+  elif [ -d "$1" ] ; then
+    echo "The folder already exists"
+    cd "$1"
+  else
+    mkdir "$1" && cd "$1"
+  fi
+}
+
 # help:datef:Shows date as YYYY-MM-DD
 alias datef='date +%Y-%m-%d'
 
