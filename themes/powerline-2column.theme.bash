@@ -281,7 +281,7 @@ _prompt ()
   _prompt_right
   indent=$(($COLUMNS-${ps1r_cnt}-${ps1l_cnt}))
   indent_spaces="$(printf '%0.s ' $(seq 1 $indent))"
-  PS1=$(printf "%s${indent_spaces}%s\n\$ " "$PS1L" "$PS1R")
+  PS1=$(printf "%s${indent_spaces}%s\n${Green}➤${PS_Color_Off} " "$PS1L" "$PS1R")
   unset ps1l_cnt
   unset ps1r_cnt
 }
