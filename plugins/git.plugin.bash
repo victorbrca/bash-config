@@ -144,9 +144,21 @@ alias gitfileshow='git-file-show'
 # help:git-diff-show:fzf show changed files with diff-so-fancy
 git-diff-show ()
 {
-  git status -s | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git diff --color {2} | diff-so-fancy' \
+  local dif_file commt_msg  
+
+  dif_file=$(git status -s | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git diff --color {2} | diff-so-fancy' \
   --preview-window=right:60% --header "Diff list" \
-  --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'
+  --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'| awk '{print $2}')
+
+  echo "Would you like to commit ${dif_file}"
+
+  read -p "[y|n]: "
+
+  if [ "$REPLY" = "y" ] ; then
+    echo "Type in commit message or enter for date string"
+    read -p "[commit message]: " commt_msg
+    git commit -m "${commt_msg:-$(date)}" "${dif_file}"
+  fi
 }
 
 # help:git-diff-show:fzf show changed files with diff-so-fancy
