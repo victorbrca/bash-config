@@ -256,6 +256,8 @@ ssl-tool ()
   esac
 }
 
+complete -W 'view read connect download convert extract check' ssl-tool
+
 # To add
 
 # Combine several certificates in PKCS7 (P7B) file:
