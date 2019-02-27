@@ -101,65 +101,76 @@ git-update ()
   echo -e "\n${UGreen}Complete${Color_Off}\n"
 }
 
-# help:git-commit-show:fzf show commits in directory
-git-commit-show () 
-{
-  git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"  | \
-   fzf --ansi --no-sort --reverse --tiebreak=index --preview \
-   'f() { set -- $(echo -- "$@" | grep -o "[a-f0-9]\{7\}"); [ $# -eq 0 ] || git show --color=always $1 ; }; f {}' \
-   --header "Git commit browser" \
-   --bind "j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort,ctrl-m:execute:
-                (grep -o '[a-f0-9]\{7\}' | head -1 |
-                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
-                {}
-FZF-EOF" --preview-window=right:60%
-}
+if command -v fzf > /dev/null ; then
+  # help:git-commit-show:fzf show commits in directory
+  git-commit-show () 
+  {
+    git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"  | \
+     fzf --ansi --no-sort --reverse --tiebreak=index --preview \
+     'f() { set -- $(echo -- "$@" | grep -o "[a-f0-9]\{7\}"); [ $# -eq 0 ] || git show --color=always $1 ; }; f {}' \
+     --header "Git commit browser" \
+     --bind "j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort,ctrl-m:execute:
+                  (grep -o '[a-f0-9]\{7\}' | head -1 |
+                  xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                  {}
+  FZF-EOF" --preview-window=right:60%
+  }
 
-# help:gitcmtshow:fzf show commits in directory
-alias gitcmtshow='git-commit-show'
+  # help:gitcmtshow:fzf show commits in directory
+  alias gitcmtshow='git-commit-show'
 
-# help:git-log-show:fzf show files and then commits in directory
-git-file-show ()
-{
-  trap "return 1" INT SIGINT
-  while true ; do
-    get_commit_hash=$(fzf --ansi --no-sort --reverse --tiebreak=index --preview 'git log --graph --color=always {}' --preview-window=right:60% \
-    --header "File list" \
-    --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort' | \
-     xargs git log --format="%h [%ar] %-s%w(0,0,9)" --follow --all 2> /dev/null)
-    if [ ! "$get_commit_hash" ] ; then
-      return 1
-    fi
-    
-    echo "$get_commit_hash" | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git show --color=always {1}' --preview-window=right:60% \
-    --header "Hash list" \
-    --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'
+  # help:git-log-show:fzf show files and then commits in directory
+  git-file-show ()
+  {
+    trap "return 1" INT SIGINT
+    while true ; do
+      get_commit_hash=$(fzf --ansi --no-sort --reverse --tiebreak=index --preview 'git log --graph --color=always {}' --preview-window=right:60% \
+      --header "File list" \
+      --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort' | \
+       xargs git log --format="%h [%ar] %-s%w(0,0,9)" --follow --all 2> /dev/null)
+      if [ ! "$get_commit_hash" ] ; then
+        return 1
+      fi
+      
+      echo "$get_commit_hash" | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git show --color=always {1}' --preview-window=right:60% \
+      --header "Hash list" \
+      --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'
 
-  done
-}
+    done
+  }
 
-# help:gitlogshow:fzf show files and then commits in directory
-alias gitfileshow='git-file-show'
+  # help:gitlogshow:fzf show files and then commits in directory
+  alias gitfileshow='git-file-show'
 
-# help:git-diff-show:fzf show changed files with diff-so-fancy
-git-diff-show ()
-{
-  local dif_file commt_msg  
+  # help:git-diff-show:fzf show changed files with diff-so-fancy
+  git-diff-show ()
+  {
+    local dif_file commt_msg  
 
-  dif_file=$(git status -s | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git diff --color {2} | diff-so-fancy' \
-  --preview-window=right:60% --header "Diff list" \
-  --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'| awk '{print $2}')
+    while true ; do
+      dif_file=$(git status -s | fzf --ansi --no-sort --reverse --tiebreak=index --preview='git diff --color {2} | diff-so-fancy' \
+      --preview-window=right:60% --header "Diff list" \
+      --bind 'j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort'| awk '{print $2}')
 
-  echo "Would you like to commit ${dif_file}"
+      if [ "$dif_file" ] ; then
+        echo "Would you like to commit changes to \"${dif_file}\""
+        read -p "[y|n]: "
+        if [ "$REPLY" = "y" ] ; then
+          echo "Type in commit message or enter for date string"
+          read -p "[commit message]: " commt_msg
+          git commit -m "${commt_msg:-$(date)}" "${dif_file}"
+          sleep .5
+        else
+          return 0
+        fi
+      else
+        return 0
+      fi
+    done
+  }
 
-  read -p "[y|n]: "
-
-  if [ "$REPLY" = "y" ] ; then
-    echo "Type in commit message or enter for date string"
-    read -p "[commit message]: " commt_msg
-    git commit -m "${commt_msg:-$(date)}" "${dif_file}"
-  fi
-}
-
-# help:git-diff-show:fzf show changed files with diff-so-fancy
-alias gitdifshow='git-diff-show'
+  # help:git-diff-show:fzf show changed files with diff-so-fancy
+  alias gitdifshow='git-diff-show'
+else
+  echo "[bash-config: git] fzf is not installed"
+fi
