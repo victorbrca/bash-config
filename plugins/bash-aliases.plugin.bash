@@ -97,6 +97,9 @@ mkcd ()
   fi
 }
 
+# help:fpath:Shows full path of given file
+alias fpath='readlink -f'
+
 # help:datef:Shows date as YYYY-MM-DD
 alias datef='date +%Y-%m-%d'
 
