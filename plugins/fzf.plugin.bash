@@ -26,7 +26,12 @@ if command -v fzf > /dev/null ; then
   . /usr/share/fzf/key-bindings.bash
   . /usr/share/fzf/completion.bash
   # help:preview:Interactive preview for files in a folder
-  alias preview="fzf --preview 'bat --color \"always\" {}' --preview-window=right:60%"
+  preview () 
+  {
+    fd -d 1 -t f | fzf --preview 'bat --color "always" --wrap "auto" {}' \
+    --bind 'alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-q:abort,ctrl-m:execute:(bat --paging=always \
+    {} < /dev/tty)' --preview-window=right:70%
+  }
 else
   echo "[bash-config] fzf is not installed"
 fi
