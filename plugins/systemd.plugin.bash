@@ -2,48 +2,7 @@
 ## about:SystemD aliases
 #
 
-# Other aliases options
-# https://github.com/lzap/systemd-shortcuts
-
-# if command -v systemctl > /dev/null ; then
-#   # help:sc:systemctl
-#   alias sctl='systemctl'
-  
-#   # help:scst:systemctl status
-#   alias sctlstat='systemctl status'
-  
-#   # help:scs:systemctl start
-#   alias sctlsta='systemctl start'
-
-#   # help:sce:systemctl stop
-#   alias sctlstp='systemctl stop'
-
-#   # help:scr:systemctl restart
-#   alias sctlrest='systemctl restart'
-
-#   # help:scdr:systemctl daemon-reload
-#   alias sctlrel='systemctl daemon-reload'
-
-#   # help:scu:systemctl --user
-#   alias sctlu='systemctl --user'
-  
-#   # help:scust:systemctl --user status
-#   alias sctlustat='systemctl --user status'
-  
-#   # help:scus:systemctl --user start
-#   alias sctlusta='systemctl --user start'
-  
-#   # help:scue:systemctl --user stop
-#   alias sctlustp='systemctl --user stop'
-
-#   # help:scur:systemctl --user restart
-#   alias sctlurest='systemctl --user restart'
-  
-#   # help:scudr:systemctl --user daemon-reload
-#   alias sctlurel='systemctl --user daemon-reload'
-# fi
-
-#help:sc:systemctl {user}[service] [start|stop|restart|status|enable|disable]
+# help:sc:systemctl {user}[service] [start|stop|restart|status|enable|disable]
 sc ()
 {
   usage="Usage: sc {user}[service] [start|stop|restart|status|enable|disable]"
