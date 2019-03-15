@@ -269,3 +269,23 @@ aliases ()
 {
   alias | grep $* | sed 's/^alias //' | sed "s/='/ /" | awk '{printf "%-15s", $1 ; $1=""; print $0}' | sed "s/'$//"
 }
+
+if command -v figlet > /dev/null ; then
+
+  # help:banner:Displays a banner with figlet and a 3d font
+  # Font available at https://github.com/xero/figlet-fonts
+  if [ -f ~/.local/share/fonts/3d.flf ] ; then
+    banner () { echo ; figlet -f ~/.local/share/fonts/3d.flf -w $(tput cols) $* ; echo ; }
+  else
+    banner () { echo ; figlet -w $(tput cols) $* ; echo ; }
+  fi
+
+  # help:lolbanner:Colorized banner
+  if command -v lolcat > /dev/null ; then
+    if [ -f ~/.local/share/fonts/3d.flf ] ; then
+      lolbanner () { echo ; figlet -f ~/.local/share/fonts/3d.flf -w $(tput cols) $* | lolcat ; echo ; }
+    else
+      lolbanner () { echo ; figlet -w $(tput cols) $* | lolcat ; echo ; }
+    fi
+  fi
+fi
