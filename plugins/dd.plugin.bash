@@ -2,7 +2,7 @@
 ## about:dd aliases
 #
 
-#help:dd_iso:Writes image to device
+# help:dd_iso:Writes image to device
 dd_iso ()
 {
   usage="usage: dd_iso [image] [device]"
