@@ -8,7 +8,7 @@ alias zypin='sudo zypper in'
 # help:zyprm:zypper remove
 alias zyprm='sudo zypper rm'
 
-#help:zypre:zypper refresh
+# help:zypre:zypper refresh
 alias zypre='sudo zypper refresh'
 
 # help:zypse:zypper search
