@@ -26,3 +26,6 @@ export LESS_TERMCAP_se=$'\e[0m'           # end standout-mode
 export LESS_TERMCAP_so=$'\E[30;47m'       # highlights - Black on white
 export LESS_TERMCAP_ue=$'\e[0m'           # end underline
 export LESS_TERMCAP_us=$'\e[04;38;5;146m' # begin underline
+
+# Set vi mode for input
+set -o vi
