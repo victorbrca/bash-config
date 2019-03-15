@@ -5,7 +5,7 @@
 # help:aur:Handler for yaourt
 aur ()
 {
-  local usage aur_log package
+  local usage aur_log package update_count
 
   usage="aur {install|update|upgrade|search|info}"
 
@@ -42,11 +42,12 @@ aur ()
       info) shift ; /usr/bin/yaourt -Si "$@" ;;
       update) 
           /usr/bin/yaourt -Sy --aur
-          if [[ $(/usr/bin/yaourt -Qu --aur | grep aur &> /dev/null ; echo $?) -eq 0 ]] ; then
-            echo -e "\nThere are AUR packages waiting to be updated. Would you like to go ahead?"
+          update_count=$(yaourt -Qu -a | grep aur | egrep -v "($(grep '^IgnorePkg' /etc/pacman.conf | awk -F"=" '{print $2}' | sed 's/^ //' | sed 's/ /|/g'))" | wc -l)
+          if (( update_count > 0 )) ; then
+            echo -e "\nThere are $update_count AUR packages waiting to be updated. Would you like to go ahead?"
             read -p "[y|n]: " answr
             case $answr in
-              y|Y|yes|YES) /usr/bin/yaourt -Syua ;;
+              y|Y|yes|YES) /usr/bin/yaourt -Sua ;;
             esac
           fi
           ;;
