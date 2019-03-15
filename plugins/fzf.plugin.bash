@@ -33,5 +33,5 @@ if command -v fzf > /dev/null ; then
     {} < /dev/tty)' --preview-window=right:70%
   }
 else
-  echo "[bash-config] fzf is not installed"
+  echo "[bash-config: fzf] fzf is not installed"
 fi
