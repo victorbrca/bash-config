@@ -5,9 +5,14 @@
 # help:pac:Front end for pacman
 pac ()
 {
-  local usage pac_log package answr
+  local usage pac_log package answr update_count
 
   usage="pac {install|remove|update|upgrade|search{info|files}|list{info|files}}"
+
+  if ! command -v checkupdates 2> /dev/null ; then
+    echo "Please install \"checkupdates\""
+    return 1
+  fi
 
   if [ -d "${HOME}/bin/var/log" ] ; then
     pac_log=${HOME}/bin/var/log/$(hostname)-pacman-install.log
@@ -46,12 +51,15 @@ pac ()
         ;;
       remove) shift ; sudo /usr/bin/pacman -Rs "$@";;
       update)
+          echo "Updating package list"
           sudo /usr/bin/pacman -Sy
-          if [[ $(/usr/bin/pacman -Qu &> /dev/null ; echo $?) -eq 0 ]] ; then
-            echo -e "\nThere are packages waiting to be updated. Would you like to go ahead?"
+          update_count=$(checkupdates 2> /dev/null | wc -l)
+
+          if (( update_count > 0 )) ; then
+            echo -e "\nThere are $update_count packages waiting to be updated. Would you like to go ahead?"
             read -p "[y|n]: " answr
             case $answr in
-              y|Y|yes|YES) sudo /usr/bin/pacman -Syu ;;
+              y|Y|yes|YES) sudo /usr/bin/pacman -Su ;;
             esac
           fi
           ;;
