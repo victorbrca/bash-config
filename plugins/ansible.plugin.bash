@@ -114,7 +114,7 @@ ansi-template ()
     return 0
   fi
 
-  avalable_modules="archive,fetch,file,copy,user,group,template,service,shell,synchronize,systemd,unarchive"
+  avalable_modules="archive,blockinfile,copy,fetch,file,group,service,shell,synchronize,systemd,template,unarchive,user"
 
   # Let's see if we have highlight
   if command -v highlight > /dev/null ; then
@@ -159,6 +159,22 @@ ansi-template ()
     mode: 0755                            # Mode the file or directory should be
     recurse: no*|yes                      # Recursively set the specified file attributes
   become: yes                             # Run actions as root
+" | $cat_cmd
+      ;;
+    blockinfile)
+      echo "
+- name:                                   # Insert/update/remove a text block surrounded by marker lines
+  blockinfile:      
+    path: /etc/foo.conf                   # The file to modify
+    create: yes|no*                       # Create a new file if it doesn't exist.
+    owner: foo                            # Name of the user that should own the file
+    group: foo                            # Name of the group that should own the file    
+    mode: 0755                            # Mode the file or directory should be
+    marker: \"# {mark} ANSIBLE BLOCK ##\"   # The marker line template. \"{mark}\" will be replaced with the values in marker_begin (default=\"BEGIN\") and marker_end (default="END").
+    insertafter: \"<body>\"                 # If specified, the block will be inserted after the last match of specified regular expression.
+    block: |                              # The text to insert inside the marker lines
+      <h1>Welcome to {{ ansible_hostname }}</h1>
+      <p>Last updated on {{ ansible_date_time.iso8601 }}</p>
 " | $cat_cmd
       ;;
     copy)
@@ -301,4 +317,4 @@ ansi-template ()
 alias ansi-tmplt='ansi-template'
 
 complete -W 'user file' ansi-get
-complete -W 'archive copy fetch file group service systemd shell synchronize template unarchive user' ansi-template ansi-tmplt
+complete -W 'archive blockinfile copy fetch file group service systemd shell synchronize template unarchive user' ansi-template ansi-tmplt
