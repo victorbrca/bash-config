@@ -204,8 +204,8 @@ ansi-template ()
     home: /home/foo             # Optionally set the user's home directory.
     password: \"{{ var }}\"       # Optionally set the user's password to this crypted value
     group: foo                  # Optionally sets the user's primary group (takes a group name).
-    groups: freedom,beer   # List of groups user will be added to
-    append: yes                 # If yes, add the user to the groups specified in groups. If no, user will only be added to the groups specified in groups, removing them from all other groups.
+    groups: freedom,beer        # List of groups user will be added to
+    append: yes|no*             # If yes, add the user to the groups specified in groups, otherwise overwrite using specified list in groups
     state: present*|absent      # Whether the account should exist or not
   become: yes                   # Run actions as root
 " | $cat_cmd
