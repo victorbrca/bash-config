@@ -9,7 +9,7 @@ pac ()
 
   usage="pac {install|remove|update|upgrade|search{info|files}|list{info|files}}"
 
-  if ! command -v checkupdates 2> /dev/null ; then
+  if ! command -v checkupdates > /dev/null ; then
     echo "Please install \"checkupdates\""
     return 1
   fi
@@ -74,7 +74,7 @@ pac ()
                 /usr/bin/pacman -Ss "$package"
                 if (( $? != 0 )) ; then
                   echo -e "\n** Could not find $package in main repos. Searching AUR **"
-                  yaourt -Ss $package
+                  aur search $package
                 fi
               done
               ;;
