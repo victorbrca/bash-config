@@ -107,14 +107,14 @@ ansi-get ()
 ansi-template ()
 {
   local usage avalable_modules cat_cmd
-  usage="Usage ansi-create [list|module]"
+  usage="Usage ansible-template [list|module]"
 
   if [[ $# -ne 1 ]] ; then
     echo "$usage"
     return 0
   fi
 
-  avalable_modules="archive,blockinfile,copy,fetch,file,group,service,shell,synchronize,systemd,template,unarchive,user"
+  avalable_modules="archive,blockinfile,command,copy,fetch,file,get_url,group,lineinfile,script,service,shell,synchronize,systemd,template,unarchive,user"
 
   # Let's see if we have highlight
   if command -v highlight > /dev/null ; then
@@ -148,19 +148,6 @@ ansi-template ()
   become: yes                    # Run actions as root
 " | $cat_cmd
       ;;
-    file)
-      echo "
-- name: Sets attributes of files, symlinks, and directories, or removes files/symlinks/directories 
-  file:
-    path: /etc/foo.conf                   # Path to the file being managed.
-    state: [present|directory|file|link]  
-    owner: foo                            # Name of the user that should own the file
-    group: foo                            # Name of the group that should own the file    
-    mode: 0755                            # Mode the file or directory should be
-    recurse: no*|yes                      # Recursively set the specified file attributes
-  become: yes                             # Run actions as root
-" | $cat_cmd
-      ;;
     blockinfile)
       echo "
 - name:                                   # Insert/update/remove a text block surrounded by marker lines
@@ -177,6 +164,19 @@ ansi-template ()
       <p>Last updated on {{ ansible_date_time.iso8601 }}</p>
 " | $cat_cmd
       ;;
+    command)
+      echo "
+- name: Executes a command on a remote node. It will not be processed through the shell, so variables like $HOME and operations like \"<\", \">\", \"|\", \";\" and \"&\" will not work
+  command: foo
+    argv:            # Allows the user to provide the command as a list vs. a string
+      - foo
+      - bar
+    chdir: /etc/foo  # Change into this directory before running the command
+    creates: /bar    # A filename or (since 2.0) glob pattern. If it already exists, this step won't be run
+    removes: /foo    # A filename or (since 2.0) glob pattern. If it already exists, this step will be run
+    stdin:           # Set the stdin of the command directly to the specified value.
+" | $cat_cmd
+      ;;
     copy)
       echo "
 - name: Copies files to remote locations
@@ -189,6 +189,165 @@ ansi-template ()
     mode: 0755            # Mode the file or directory should be
     remote_src: no*|yes   # If no, it will search for src at originating/master machine
     backup: no*|yes       # Create a backup file including the timestamp information
+  become: yes             # Run actions as root
+" | $cat_cmd
+      ;;
+    fetch)
+      echo "
+- name: Fetches a file from remote nodes
+  fetch:
+    src: /tmp/uniquefile   # The file on the remote system to fetch. This must be a file, not a directory.
+    dest: /tmp/special/    # A directory to save the file into. File will saved with [dest]/[src_hostname]/[absolut src]
+    flat: yes              # Allows you to override the default behavior of appending hostname/path/to/file to the destination
+  become: yes              # Run actions as root
+" | $cat_cmd
+      ;;
+    file)
+      echo "
+- name: Sets attributes of files, symlinks, and directories, or removes files/symlinks/directories 
+  file:
+    path: /etc/foo.conf                   # Path to the file being managed.
+    state: [present|directory|file|link]  
+    owner: foo                            # Name of the user that should own the file
+    group: foo                            # Name of the group that should own the file    
+    mode: 0755                            # Mode the file or directory should be
+    recurse: no*|yes                      # Recursively set the specified file attributes
+  become: yes                             # Run actions as root
+" | $cat_cmd
+      ;;
+    get_url)
+      echo "
+- name: Downloads files from HTTP, HTTPS, or FTP to node
+  get_url:
+    url: http://example.com/path/file.conf  # HTTP, HTTPS, or FTP URL in the form (http|https|ftp)://[user[:pass]]@host.domain[:port]/path
+    url_username:                           # The username for use in HTTP basic authentication.
+    url_password:                           # The password for use in HTTP basic authentication.
+    use_proxy: no|yes*                      # If no, it will not use a proxy, even if one is defined in an environment variable on the target hosts.
+    validate_certs: no|yes*                 # If no, SSL certificates will not be validated. 
+    timeout: 10*                            # Timeout in seconds for URL request.
+    dest: /etc/foo.conf                     # Absolute path of where to download the file to.
+    owner: foo                              # Name of the user that should own the file/directory, as would be fed to chown
+    group: foo                              # Name of the group that should own the file/directory, as would be fed to chown
+    mode: 0755                              # Mode the file or directory should be
+    backup:                                 # Create a backup file including the timestamp information so you can get the original file back if you somehow clobbered it incorrectly.
+    backup_file:                            # Name of backup file created after download
+    checksum: md5:hash                      # If a checksum is passed to this parameter, the digest of the destination file will be calculated after it is downloaded to ensure its integrity and verify that the transfer completed successfully
+    force: no*|yes                          # If yes and dest is not a directory, will download the file every time and replace the file if the contents change
+" | $cat_cmd
+      ;;
+    group)
+      echo "
+- name: Add or remove groups
+  group:
+    name: foo                # Name of the group to act on
+    gid: 1000                # Optional GID to set for the group
+    system: no*|yes          # If yes, indicates that the group created is a system group
+    state: present*|absent   # Whether the account should exist or not
+  become: yes                # Run actions as root
+" | $cat_cmd
+      ;;
+    lineinfile)
+      echo "
+- name: Manage lines in text files
+  lineinfile:
+    path: /etc/foo         # The file to modify
+    owner: foo             # Name of the user that should own the file/directory, as would be fed to chown
+    group: foo             # Name of the group that should own the file/directory, as would be fed to chown
+    mode: 0755             # Mode the file or directory should be
+    state: absent|present* # Whether the line should be there or not.
+    line: 'Hello World'    # The line to insert/replace into the file
+    regex: '^Hello World'  # The regular expression to look for in every line of the file.
+    insertbefore: '^foo'   # If specified, the line will be inserted before the last match of specified regular expression
+    insertafter: '^bar'    # If specified, the line will be inserted after the last match of specified regular expression.
+    validate:              # The validation command to run before copying into place.
+" | $cat_cmd
+      ;;
+    service)
+      echo "
+- name: Manage services
+  systemd: 
+    name: foo.service                         # Name of the service
+    state: reloaded|restart|started|stopped   # 
+    enabled: no|yes                           # Whether the service should start on boot
+  become: yes                                 # Run actions as root
+" | $cat_cmd
+      ;;
+    script)
+      echo "
+- name: Runs a local script on a remote node after transferring it
+  script: foo_bar.sh
+    chdir: /etc/foo        # Change into this directory before running the script
+    creates: /bar          # A filename or (since 2.0) glob pattern. If it already exists, this step won't be run
+    removes: /foo          # A filename or (since 2.0) glob pattern. If it already exists, this step will be run
+    executable: /bin/bash  # Name or path of a executable to invoke the script with
+" | $cat_cmd
+      ;;
+    shell)
+      echo "
+- name: Execute commands in nodes
+  shell: somescript.sh >> somelog.txt   # The command to be run. Use \"|\" for multiline commands
+  args:
+    chdir: somedir/                     # cd into this directory before running the command
+    creates: somelog.txt                # A filename, when it already exists, this step will not be run
+    removes: somelog.txt                # A filename, when it does not exist, this step will not be run
+  become: yes                           # Enable the become flag
+  become_user: foo                      # Run actions as foo
+" | $cat_cmd
+      ;;
+    synchronize)
+      echo "
+- name: A wrapper around rsync to make common tasks in your playbooks quick and easy
+  synchronize:
+    src: some/relative/path     # Path on the source host that will be synchronized to the destination
+    dest: /some/absolute/path   # Path on the destination host that will be synchronized from the source
+    recursive: no|yes           # Recurse into directories
+    mode: push*|pull            # Specify the direction of the synchronization (push: localhost=>remote)
+    owner: no|yes               # Preserve owner (super user only)
+    checksum: no*|yes           # Skip based on checksum, rather than mod-time & size
+    perms: no|yes               # Preserve permissions
+    links: no|yes               # Copy symlinks as symlinks.
+    archive: no*|yes            # Mirrors the rsync archive flag, enables recursive, links, perms, times, owner, group flags and -D
+  become: no                    # stops synchronize trying to sudo locally
+" | $cat_cmd
+      ;;
+    systemd)
+      echo "
+- name: Manage services
+  systemd: 
+    name: foo.service                         # Name of the service
+    state: reloaded|restart|started|stopped   # 
+    enabled: no|yes                           # Whether the service should start on boot
+    scope: system*|user|global                # run systemctl within a given service manager scope
+    daemon_reload: no*|yes                    # run daemon-reload before doing any other operations, to make sure systemd has read any changes
+  become: yes                                 # Run actions as root
+" | $cat_cmd
+      ;;
+    template)
+      echo "
+- name: Templates a file out to a remote server
+  template:
+    src: /mytemplates/foo.j2            # Path of a Jinja2 formatted template on the Ansible controller
+    dest: /etc/foo.conf                 # Location to render the template to on the remote machine
+    owner: foo                          # Name of the user that should own the file
+    group: foo                          # Name of the group that should own the file
+    mode: 0755                          # Mode the file or directory should be
+    backup: no*|yes                     # Create a backup file including the timestamp information
+    validate: /usr/sbin/sshd -t -f %s   # The validation command to run before copying into place
+  become: yes                           # Run actions as root
+" | $cat_cmd
+      ;;
+    unarchive)
+      echo "
+- name: Unpacks an archive after (optionally) copying it from the local machine
+  unarchive:
+    src: ~/sample.zip     # Local path to a archive file to copy to the remote server
+    dest: /etc/foo        # Remote absolute path where the archive should be unpacked
+    owner: foo            # Name of the user that should own the file/directory, as would be fed to chown
+    group: foo            # Name of the group that should own the file/directory, as would be fed to chown
+    mode: 0755            # Mode the file or directory should be
+    remote_src: no*|yes   # Set to yes to indicate the archived file is already on the remote system and not local to the Ansible controller
+    keep_newer: no*|yes   # Do not replace existing files that are newer than files from the archive
+    exclude: foo, bar     # List the directory and file entries that you would like to exclude from the unarchive action
   become: yes             # Run actions as root
 " | $cat_cmd
       ;;
@@ -210,111 +369,12 @@ ansi-template ()
   become: yes                   # Run actions as root
 " | $cat_cmd
       ;;
-    group)
-      echo "
-- name: Add or remove groups
-  group:
-    name: foo                # Name of the group to act on
-    gid: 1000                # Optional GID to set for the group
-    system: no*|yes          # If yes, indicates that the group created is a system group
-    state: present*|absent   # Whether the account should exist or not
-  become: yes                # Run actions as root
-" | $cat_cmd
-      ;;
-    template)
-      echo "
-- name: Templates a file out to a remote server
-  template:
-    src: /mytemplates/foo.j2            # Path of a Jinja2 formatted template on the Ansible controller
-    dest: /etc/foo.conf                 # Location to render the template to on the remote machine
-    owner: foo                          # Name of the user that should own the file
-    group: foo                          # Name of the group that should own the file
-    mode: 0755                          # Mode the file or directory should be
-    backup: no*|yes                     # Create a backup file including the timestamp information
-    validate: /usr/sbin/sshd -t -f %s   # The validation command to run before copying into place
-  become: yes                           # Run actions as root
-" | $cat_cmd
-      ;;
-    service)
-      echo "
-- name: Manage services
-  systemd: 
-    name: foo.service                         # Name of the service
-    state: reloaded|restart|started|stopped   # 
-    enabled: no|yes                           # Whether the service should start on boot
-  become: yes                                 # Run actions as root
-" | $cat_cmd
-      ;;
-    systemd)
-      echo "
-- name: Manage services
-  systemd: 
-    name: foo.service                         # Name of the service
-    state: reloaded|restart|started|stopped   # 
-    enabled: no|yes                           # Whether the service should start on boot
-    scope: system*|user|global                # run systemctl within a given service manager scope
-    daemon_reload: no*|yes                    # run daemon-reload before doing any other operations, to make sure systemd has read any changes
-  become: yes                                 # Run actions as root
-" | $cat_cmd
-      ;;
-    unarchive)
-      echo "
-- name: Unpacks an archive after (optionally) copying it from the local machine
-  unarchive:
-    src: ~/sample.zip     # Local path to a archive file to copy to the remote server
-    dest: /etc/foo        # Remote absolute path where the archive should be unpacked
-    owner: foo            # Name of the user that should own the file/directory, as would be fed to chown
-    group: foo            # Name of the group that should own the file/directory, as would be fed to chown
-    mode: 0755            # Mode the file or directory should be
-    remote_src: no*|yes   # Set to yes to indicate the archived file is already on the remote system and not local to the Ansible controller
-    keep_newer: no*|yes   # Do not replace existing files that are newer than files from the archive
-    exclude: foo, bar     # List the directory and file entries that you would like to exclude from the unarchive action
-  become: yes             # Run actions as root
-" | $cat_cmd
-      ;;
-    fetch)
-      echo "
-- name: Fetches a file from remote nodes
-  fetch:
-    src: /tmp/uniquefile   # The file on the remote system to fetch. This must be a file, not a directory.
-    dest: /tmp/special/    # A directory to save the file into. File will saved with [dest]/[src_hostname]/[absolut src]
-    flat: yes              # Allows you to override the default behavior of appending hostname/path/to/file to the destination
-  become: yes              # Run actions as root
-" | $cat_cmd
-      ;;
-    synchronize)
-      echo "
-- name: A wrapper around rsync to make common tasks in your playbooks quick and easy
-  synchronize:
-    src: some/relative/path     # Path on the source host that will be synchronized to the destination
-    dest: /some/absolute/path   # Path on the destination host that will be synchronized from the source
-    recursive: no|yes           # Recurse into directories
-    mode: push*|pull            # Specify the direction of the synchronization (push: localhost=>remote)
-    owner: no|yes               # Preserve owner (super user only)
-    checksum: no*|yes           # Skip based on checksum, rather than mod-time & size
-    perms: no|yes               # Preserve permissions
-    links: no|yes               # Copy symlinks as symlinks.
-    archive: no*|yes            # Mirrors the rsync archive flag, enables recursive, links, perms, times, owner, group flags and -D
-  become: no                    # stops synchronize trying to sudo locally
-" | $cat_cmd
-      ;;
-    shell)
-      echo "
-- name: Execute commands in nodes
-  shell: somescript.sh >> somelog.txt   # The command to be run. Use \"|\" for multiline commands
-  args:
-    chdir: somedir/                     # cd into this directory before running the command
-    creates: somelog.txt                # A filename, when it already exists, this step will not be run
-    removes: somelog.txt                # A filename, when it does not exist, this step will not be run
-  become: yes                           # Enable the become flag
-  become_user: foo                      # Run actions as foo
-" | $cat_cmd
-      ;;
   esac
 }
 
 # help:ansi-tmplt:Same as ansi-template
 alias ansi-tmplt='ansi-template'
+alias ansible-template='ansi-template'
 
 complete -W 'user file' ansi-get
-complete -W 'archive blockinfile copy fetch file group service systemd shell synchronize template unarchive user' ansi-template ansi-tmplt
+complete -W 'list archive blockinfile command copy fetch file get_url group lineinfile script service shell synchronize systemd template unarchive user' ansi-template ansible-template ansi-tmplt
