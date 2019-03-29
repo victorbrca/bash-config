@@ -18,7 +18,7 @@ aur ()
   case $1 in
       install)
         shift
-        /usr/bin/yay -Sy "$@"
+        /usr/bin/yay -Sy --answerupgrade none --answerclean all --answerdiff none --answeredit none "$@"
         if [[ $? -eq 0 ]] ; then
           echo -e "\n** Logging installed packages"
           for package in "$@" ; do
