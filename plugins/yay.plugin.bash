@@ -40,15 +40,20 @@ aur ()
         done
         ;;
       info) shift ; /usr/bin/yay -Sia mplayer "$@" ;;
-      update) 
-          /usr/bin/yay -Sya
-          update_count=$(yay -Qum | wc -l)
-          if (( update_count > 0 )) ; then
-            echo -e "\nThere are $update_count AUR packages waiting to be updated. Would you like to go ahead?"
-            read -p "[y|n]: " answr
-            case $answr in
-              y|Y|yes|YES) yes | /usr/bin/yay -Sua --answerupgrade none --answerclean all --answerdiff none --answeredit none ;;
-            esac
+      update)
+          if [[ $# -gt 1 ]] ; then
+            shift
+            /usr/bin/yay -S --answerupgrade none --answerclean all --answerdiff none --answeredit none "$@"
+          else
+            /usr/bin/yay -Sya
+            update_count=$(yay -Qum | wc -l)
+            if (( update_count > 0 )) ; then
+              echo -e "\nThere are $update_count AUR packages waiting to be updated. Would you like to go ahead?"
+              read -p "[y|n]: " answr
+              case $answr in
+                y|Y|yes|YES) yes | /usr/bin/yay -Sua --answerupgrade none --answerclean all --answerdiff none --answeredit none ;;
+              esac
+            fi
           fi
           ;;
       upgrade) shift ; yes | /usr/bin/yay -Syua --answerupgrade none --answerclean all --answerdiff none --answeredit none ;;
