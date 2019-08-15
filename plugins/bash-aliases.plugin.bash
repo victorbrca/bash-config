@@ -261,7 +261,15 @@ transfer ()
 
 # help:diff:Changes diff to use color, diff-so-fancy and bat
 diff () {
-  command diff -u --color=always "$1" "$2" | diff-so-fancy | bat
+  if command -v diff-so-fancy > /dev/null && command -v bat > /dev/null ; then
+    command diff -u --color=always "$1" "$2" | diff-so-fancy | bat
+  elif command -v diff-so-fancy > /dev/null && ! command -v bat > /dev/null ; then
+    command diff -u --color=always "$1" "$2" | diff-so-fancy
+  elif ! command -v diff-so-fancy > /dev/null && command -v bat > /dev/null ; then
+    command diff -u --color=always "$1" "$2" | bat
+  else
+    command diff -u --color=always "$1" "$2"
+  fi
 }
 
 # help:aliases:Show loaded aliases
@@ -289,3 +297,6 @@ if command -v figlet > /dev/null ; then
     fi
   fi
 fi
+
+# help:resu:Re-run last command with sudo
+alias resu='sudo $(fc -ln -1)'
