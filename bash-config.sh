@@ -19,6 +19,7 @@
   bash-config disable -p [plugin]
   bash-config list
   bash-config install
+  bash-config aliases {plugin|alias}
 COMMENT_USAGE
 
 #-------------------------------------------------------------------------------
@@ -35,7 +36,7 @@ if [ -f "${bash_config_dir}/lib/bash-colors" ] ; then
 fi
 
 # Sets up usage
-usage="${BWhite}bash-config${Color_Off} [install|upgrade|list|enable|disable] \
+usage="${BWhite}bash-config${Color_Off} [install|upgrade|list|enable|disable|aliases] \
 {-p [plugin1,plugin2]|-t [theme1,theme2]}"
 
 
@@ -270,16 +271,33 @@ _upgrade ()
 _display_aliases ()
 {
   if [[ $# -eq 1 ]] ; then
-    if [ ! -e ${bash_config_plugins_folder}/enabled/${1}*.plugin.bash ] ; then
-      echo "Could not find plugin \"$1\""
-      exit 1
+    # Display all aliases for a plugin
+    if [ -e ${bash_config_plugins_folder}/enabled/${1}.plugin.bash ] ; then
+      #echo "Aliases for plugin ${1}"
+      echo -e "\n${UWhite}Aliases for plugin ${1}${Color_Off}"
+      grep -h '# help:' ${bash_config_plugins_folder}/enabled/${1}.plugin.bash \
+       | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
     else
-      grep -h '# help:' ${bash_config_plugins_folder}/enabled/${1}*.plugin.bash \
-      | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
+      # Search for aliases on all plugins
+      echo -e "\n${UWhite}Searching for aliases with \"$1\" on all plugins${Color_Off}"
+      grep -h '# help:' ${bash_config_plugins_folder}/enabled/*.plugin.bash 2> /dev/null \
+       | grep -h "help:${1}" | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
+    fi
+  elif [[ $# -eq 2 ]] ; then
+    # Search for aliases in a plugin
+    echo -e "\n${UWhite}Searching for aliases with \"$2\" on plugin \"$1\"${Color_Off}"
+    if [ -e ${bash_config_plugins_folder}/enabled/${1}.plugin.bash ] ; then
+      grep -h '# help:' ${bash_config_plugins_folder}/enabled/${1}.plugin.bash \
+       | grep "help:${2}" | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
+    else
+      echo "Could not find alias \"$2\" on plugin \"$1\""
+      exit 1
     fi
   else
+    # Shows all aliases
+    echo -e "\n${UWhite}Displaying all aliases${Color_Off}"
     grep -h '# help:' ${bash_config_plugins_folder}/enabled/*.plugin.bash 2> /dev/null \
-    | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
+     | awk -F":" '{printf "%-15s %s\n" , $2 , substr($0, index($0,$3))}'
   fi
 }
 
@@ -311,19 +329,11 @@ elif [[ $# -eq 1 ]] ; then
       exit 1
       ;;
   esac
-elif [[ $# -eq 3 ]] ; then
+elif [[ $# -gt 1 ]] ; then
   case "$1" in
     enable) _enable "$2" "$3" ;;
     disable) _disable "$2" "$3" ;;
-    *) 
-      echo "Wrong option"
-      echo -e "$usage"
-      exit 0
-      ;;
-  esac
-elif [[ $# -eq 2 ]] ; then
-  case "$1" in
-    aliases) _display_aliases $2 ;;
+    aliases) shift ; _display_aliases $* ;;
     *) 
       echo "Wrong option"
       echo -e "$usage"
