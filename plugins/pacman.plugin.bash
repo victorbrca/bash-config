@@ -43,7 +43,7 @@ pac ()
             if [[ $? -eq 0 ]] ; then
               echo "Already logged"
             else
-              echo -e "$(date)\t-\tInstalled package: $package" >> "$pac_log"
+              echo -e "$(date)\t-\tInstalled pacman package: $package" >> "$pac_log"
               echo "ok"
             fi
           done
@@ -105,5 +105,15 @@ last_installed ()
 
 complete -W 'install update search list remove upgrade' pac
 
-
+checkupdates ()
+{
+  if [[ -f "/usr/bin/checkupdates" ]] && [[ "$(command -v checkupdates-aur | cut -f1 -d ' ')" == "alias" ]] ; then
+    pac_updates=$(/usr/bin/checkupdates | wc -l)
+    aur_updates=$(checkupdates-aur | wc -l)
+    total_updates=$(( pac_updates + aur_updates))
+    echo "There are a total of $total_updates packages to be updated"
+    echo "Arch: $pac_updates"
+    echo "AUR:  $aur_updates"
+  fi
+}
 ## Add paccache as clean
