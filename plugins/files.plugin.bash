@@ -163,7 +163,8 @@ alias utarz='tar -xzvf'
 alias tarz='tar -czvf'
 
 # help:dfh:df -hT
-alias dfh='df -hT'
+alias dfh='df -hT -x squashfs'
 
 # help:less:Uses vim as less for syntax highlight
-alias less='/usr/share/vim/vim*/macros/less.sh'
+#alias less='/usr/share/vim/vim*/macros/less.sh'
+alias less='vim -R'
