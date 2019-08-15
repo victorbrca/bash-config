@@ -114,7 +114,7 @@ ansible-template ()
     return 0
   fi
 
-  available_modules="archive,blockinfile,command,copy,fetch,file,get_url,group,lineinfile,script,service,shell,synchronize,systemd,template,unarchive,user"
+  available_modules="archive,blockinfile,command,copy,fetch,file,get_url,group,lineinfile,replace,script,service,shell,synchronize,systemd,template,unarchive,user"
 
   # Let's see if we have highlight
   if command -v highlight > /dev/null ; then
@@ -279,6 +279,22 @@ ansible-template ()
     validate:              # The validation command to run before copying into place.
 "
       ;;
+    replace)
+      module_description="
+- name: Replace all instances of a particular string in a file using a back-referenced regular expression
+  replace:
+    path: /foo/bar                        # The file to modify
+    backup: no*|yes                       # Create a backup file including the timestamp information
+    after: #foo                           # If specified, only content after this match will be replaced/removed.
+    before: #bar                          # If specified, only content before this match will be replaced/removed.
+    regexp: '^foobar$'                    # The regular expression to look for in the contents of the file
+    replace: 'barfoo'                     # The string to replace regexp matches
+    owner: foo                            # Name of the user that should own the file
+    group: foo                            # Name of the group that should own the file
+    mode: 0755                            # Mode the file or directory should be
+    validate: /usr/bin/grep -q barfoo %s  # The validation command to run before copying into place
+"
+      ;;
     service)
       module_description="
 - name: Manage services
@@ -409,4 +425,4 @@ alias ansi-tmplt='ansi-template'
 alias ansi-template='ansible-template'
 
 complete -W 'user file' ansi-get
-complete -W 'list archive blockinfile command copy fetch file get_url group lineinfile script service shell synchronize systemd template unarchive user' ansi-template ansible-template ansi-tmplt
+complete -W 'list archive blockinfile command copy fetch file get_url group lineinfile replace script service shell synchronize systemd template unarchive user' ansi-template ansible-template ansi-tmplt
