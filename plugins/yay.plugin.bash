@@ -36,7 +36,7 @@ aur ()
       search)
         shift
         for package in "$@" ; do
-          /usr/bin/yay -Ssa "$package"
+          /usr/bin/yay -Ssa --sortby votes --topdown "$package"
         done
         ;;
       info) shift ; /usr/bin/yay -Sia mplayer "$@" ;;
