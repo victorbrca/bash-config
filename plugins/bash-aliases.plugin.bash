@@ -300,3 +300,67 @@ fi
 
 # help:resu:Re-run last command with sudo
 alias resu='sudo $(fc -ln -1)'
+
+# help:mem_usage:Shows memory utilization
+mem_usage ()
+{
+  local opt
+
+  if [[ $# -eq 0 ]] ; then
+    opt=full
+  elif [[ "$1" == "-c" ]] ; then
+    opt=cmd
+  elif [[ "$1" == "-f" ]] ; then
+    opt=full
+  else
+    echo "usage: mem_usage -[f|c]"
+    return 0
+  fi
+
+  case $opt in
+    full)
+      ps -eo pid,ppid,comm,%mem,vsz,rss,%cpu --sort=-%mem | head | numfmt --header --from-unit=1024 \
+        --to=iec --field 5 | numfmt --header --from-unit=1024 --to=iec --field 6 | column -t
+      ;;
+    cmd)
+      ps -eo pid,ppid,cmd:60,comm,%mem,rss,%cpu --sort=-%mem | head
+      ;;
+  esac
+}
+
+# help:mem_top:Like top, but for memory utilization
+mem_top ()
+{
+  local opt
+
+  if [[ $# -eq 0 ]] ; then
+    opt=full
+  elif [[ "$1" == "-c" ]] ; then
+    opt=cmd
+  elif [[ "$1" == "-f" ]] ; then
+    opt=full
+  else
+    echo "usage: mem_top -[f|c]"
+    return 0
+  fi
+
+  case $opt in
+    full)
+      while true ; do
+        clear
+        date
+        ps -eo pid,ppid,comm,%mem,vsz,rss,%cpu --sort=-%mem | numfmt --header --from-unit=1024 \
+         --to=iec --field 5 | numfmt --header --from-unit=1024 --to=iec --field 6 | column -t | head -$(echo $(tput lines) - 2 | bc)
+        sleep 3
+      done
+      ;;
+    cmd)
+      while true ; do
+        clear
+        date
+        ps -eo pid,ppid,cmd:60,comm,%mem,rss,%cpu --sort=-%mem | head -$(echo $(tput lines) - 2 | bc)
+        sleep 3
+      done
+      ;;
+  esac
+}
