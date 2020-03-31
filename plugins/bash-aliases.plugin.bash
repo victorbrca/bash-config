@@ -275,7 +275,7 @@ diff () {
 # help:aliases:Show loaded aliases
 aliases ()
 {
-  alias | grep $* | sed 's/^alias //' | sed "s/='/ /" | awk '{printf "%-15s", $1 ; $1=""; print $0}' | sed "s/'$//"
+  alias | sed 's/^alias //' | sed "s/='/ /" | awk '{printf "%-15s", $1 ; $1=""; print $0}' | sed "s/'$//"
 }
 
 if command -v figlet > /dev/null ; then
