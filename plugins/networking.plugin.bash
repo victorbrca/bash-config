@@ -15,6 +15,12 @@ pping ()
   fi
 }
 
+# help:aping:Audio feedback for ping
+aping ()
+{
+  ping $1 | awk -F[=\ ] '/me=/{t=$(NF-1);f=3000-14*log(t^20);c="play -q -n synth 1 pl " f;print $0;system(c)}'
+}
+
 # help:if0:Displays IP for eth0
 if0 () {
   if_device="$(ls -1 --color=never /sys/class/net | egrep -v '(lo|w.*)' | head -1)"
