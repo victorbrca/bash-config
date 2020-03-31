@@ -5,13 +5,13 @@
 # help:pac:Front end for pacman
 pac ()
 {
-  local usage pac_log package answr update_count
+  local usage pac_log package answr update_count search_lines
 
-  usage="pac {install|remove|update|upgrade|search{info|files}|list{info|files}}"
+  usage="pac {install|remove|update|upgrade|search{info|files}|list{info|files}|clean{check}}"
 
   if ! command -v checkupdates > /dev/null ; then
-    echo "Please install \"checkupdates\""
-    return 1
+    echo "[bash-config: pacman] pacman-contrib is not installed"
+    #return 1
   fi
 
   if [ -d "${HOME}/bin/var/log" ] ; then
@@ -32,6 +32,7 @@ pac ()
           sudo /usr/bin/pacman -U "$@"
         else
           shift
+          # let's update first
           sudo /usr/bin/pacman -Sy
           sudo /usr/bin/pacman -S "$@"
         fi
@@ -47,6 +48,13 @@ pac ()
               echo "ok"
             fi
           done
+        # elif [[ $? -eq 0 ]] ; then
+        #   # let's see if we can find one item
+        #   search_lines=$(/usr/bin/pacman -Ss $1 | egrep '.*/.*[0-9]' | wc -l)
+        #   if (( search_lines = 1 )) ; then
+        #     prompt_package="$(/usr/bin/pacman -Ss $1 | egrep '.*/.*[0-9]' | awk '{print $1}' | awk -F"/" '{print $2}')"
+            
+        #     echo "Did you mean"
         fi
         ;;
       remove) shift ; sudo /usr/bin/pacman -Rs "$@";;
@@ -88,6 +96,24 @@ pac ()
           esac
           ;;
       owns) shift ; sudo /usr/bin/pacman -Qo "$@";;
+      clean)
+          if [[ $# -eq 2 ]] ; then
+            case $2 in
+                check)
+                    echo "** Old packages"
+                    paccache -dv | tail -1
+                    echo "** Stale packages"
+                    paccache -dvu | tail -1
+                    ;;
+                *) echo $usage ;;
+            esac
+          else
+            echo "** Cleaning old packages (keep 3)"
+            paccache -rv | tail -1
+            echo -e "\n** Cleaning stale packages"
+            paccache -rvu | tail -1
+          fi
+          ;;
       *) echo "Invalid option" ; echo "$usage" ; return 1 ;;
   esac
 }
@@ -103,17 +129,64 @@ last_installed ()
   fi
 }
 
-complete -W 'install update search list remove upgrade' pac
+complete -W 'install update search list remove upgrade clean' pac
 
 checkupdates ()
 {
-  if [[ -f "/usr/bin/checkupdates" ]] && [[ "$(command -v checkupdates-aur | cut -f1 -d ' ')" == "alias" ]] ; then
-    pac_updates=$(/usr/bin/checkupdates | wc -l)
-    aur_updates=$(checkupdates-aur | wc -l)
+  local opt
+
+  if ! command -v checkupdates > /dev/null ; then
+    echo "[bash-config: pacman] pacman-contrib is not installed"
+    return 1
+  fi
+
+  if command -v yay > /dev/null ; then
+    checkupdates_aur="yay -Qum"
+  elif command -v pacaur > /dev/null ; then
+    checkupdates_aur="pacaur -Qum"
+  else
+    checkupdates_aur="[bash-config: pacman] Could not find an AUR helper. Will not show AUR update"
+  fi
+
+  if [[ $# -eq 1 ]] ; then
+    if [[ "$1" == "-l" ]] ; then
+      opt="long"
+    elif [[ "$1" == "-a" ]] ; then
+      opt="aur"
+    else
+      echo "Wrong option \"$1\""
+      echo "Usage: checkupdates {-l long|-a aur}"
+      return 1
+    fi
+  fi
+
+  if [[ "$opt" == "aur" ]] ; then
+    eval $checkupdates_aur
+  else
+    pac_update_text="$(/usr/bin/checkupdates)"
+    pac_updates=$(echo "$pac_update_text" | egrep '[a-z]' | wc -l)
+    aur_update_text="$(eval "$checkupdates_aur" | grep -v bash-config)"
+    aur_updates=$(echo "$aur_update_text" | wc -l)
     total_updates=$(( pac_updates + aur_updates))
-    echo "There are a total of $total_updates packages to be updated"
-    echo "Arch: $pac_updates"
-    echo "AUR:  $aur_updates"
+    if [[ "$opt" != "long" ]] ; then
+      echo "There are a total of $total_updates packages to be updated"
+      echo "Arch: $pac_updates"
+      echo "AUR:  $aur_updates"
+    elif [[ "$opt" == "long" ]] ; then
+      if [[ $pac_updates -ne 0 ]] ; then
+        echo "------------------------------"
+        echo "Pacman: $pac_updates updates"
+        echo "------------------------------"
+        echo "$pac_update_text"
+        echo ""
+      fi
+
+      if [[ $aur_updates -ne 0 ]] ; then
+        echo "------------------------------"
+        echo "AUR: $aur_updates updates"
+        echo "------------------------------"
+        echo "$aur_update_text"
+      fi
+    fi
   fi
 }
-## Add paccache as clean
