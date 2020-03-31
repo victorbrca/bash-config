@@ -167,4 +167,13 @@ alias dfh='df -hT -x squashfs'
 
 # help:less:Uses vim as less for syntax highlight
 #alias less='/usr/share/vim/vim*/macros/less.sh'
-alias less='vim -R'
+#alias less='vim -R'
+less ()
+{
+  if [ -p /dev/stdin ] ; then
+    cat | vim -R -
+  else
+    vim -R "$1"
+  fi
+}
+
