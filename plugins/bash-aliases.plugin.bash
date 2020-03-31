@@ -364,3 +364,6 @@ mem_top ()
       ;;
   esac
 }
+
+# help:date-fmt:Displays a list of date and time formats
+alias date-fmt='date --help | grep %'
