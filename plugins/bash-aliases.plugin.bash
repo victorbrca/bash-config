@@ -135,9 +135,38 @@ var ()
 #   . option for alfa, numeric or both
 genpass ()
 {
-  local p=$1
-  [ "$p" == "" ] && p=16
-  tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${p} | xargs
+  local lenght usage special_char OPTIND
+
+  usage='genpass -l [lenght] -n <no special char>'
+  lenght=24
+  OPTERR=0
+
+  while getopts "nhl:" OPT ; do
+    case $OPT in
+      l) lenght=$OPTARG ;;
+      n) special_char=no ;;
+      h) echo "$usage" ; return 0 ;;
+      \?)
+        echo "Wrong option ${OPTARG}"
+        echo "$usage"
+        return 1
+        ;;
+      :) 
+        echo "Missing argument for $OPTARG"
+        echo "$usage"
+        return 1
+        ;;
+    esac
+  done
+
+  if [[ $# -eq 1 ]] && [[ $1 =~ [0-9]{1,2} ]] ; then
+    lenght=$1
+  fi
+
+  case $special_char in
+    no) tr -dc A-Za-z0-9 < /dev/urandom | head -c ${lenght} ; echo ;;
+    *) tr -dc A-Za-z0-9*_$^! < /dev/urandom | head -c ${lenght} ; echo ;;
+  esac
 }
 
 # help:lowerit:Converts given string to lower case
