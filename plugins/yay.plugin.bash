@@ -18,7 +18,7 @@ aur ()
   case $1 in
       install)
         shift
-        /usr/bin/yay -Sy --answerupgrade none --answerclean all --answerdiff none --answeredit none "$@"
+        /usr/bin/yay -Say --answerupgrade none --answerclean all --answerdiff none --answeredit none "$@"
         if [[ $? -eq 0 ]] ; then
           echo -e "\n** Logging installed packages"
           for package in "$@" ; do
@@ -43,7 +43,7 @@ aur ()
       update)
           if [[ $# -gt 1 ]] ; then
             shift
-            /usr/bin/yay -S --answerupgrade none --answerclean all --answerdiff none --answeredit none "$@"
+            /usr/bin/yay -Sa --answerupgrade none --answerclean none --answerdiff none --answeredit none "$@"
           else
             /usr/bin/yay -Sya
             update_count=$(yay -Qum | wc -l)
@@ -51,12 +51,12 @@ aur ()
               echo -e "\nThere are $update_count AUR packages waiting to be updated. Would you like to go ahead?"
               read -p "[y|n]: " answr
               case $answr in
-                y|Y|yes|YES) yes | /usr/bin/yay -Sua --answerupgrade none --answerclean all --answerdiff none --answeredit none ;;
+                y|Y|yes|YES) yes | /usr/bin/yay -Sua --answerupgrade none --answerclean none --answerdiff none --answeredit none ;;
               esac
             fi
           fi
           ;;
-      upgrade) shift ; yes | /usr/bin/yay -Syua --answerupgrade none --answerclean all --answerdiff none --answeredit none ;;
+      upgrade) shift ; yes | /usr/bin/yay -Syua --answerupgrade none --answerclean none --answerdiff none --answeredit none ;;
       *) 
         echo "Invalid option"
         echo "$usage"
