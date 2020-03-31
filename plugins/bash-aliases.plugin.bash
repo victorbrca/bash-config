@@ -304,7 +304,11 @@ diff () {
 # help:aliases:Show loaded aliases
 aliases ()
 {
-  alias | sed 's/^alias //' | sed "s/='/ /" | awk '{printf "%-15s", $1 ; $1=""; print $0}' | sed "s/'$//"
+  {
+    echo "Alias Command" | awk '{printf "%-17s", $1 ; $1=""; print $0}'
+    echo "========================="
+    alias | sed 's/^alias //' | sed "s/='/ /" | awk '{printf "%-17s", $1 ; $1=""; print $0}' | sed "s/'$//"
+  } | less
 }
 
 if command -v figlet > /dev/null ; then
