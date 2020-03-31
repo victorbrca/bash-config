@@ -11,4 +11,7 @@ if command -v lpass > /dev/null ; then
 
   # help:lpasc:lpass copy password
   alias lpascp='lpass show --password -G -c'
+
+  # Variable to 
+  export LPASS_HOME="${HOME}/.lpass"
 fi
