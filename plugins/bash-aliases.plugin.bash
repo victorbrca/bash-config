@@ -400,3 +400,12 @@ mem_top ()
 
 # help:date-fmt:Displays a list of date and time formats
 alias date-fmt='date --help | grep %'
+
+# help:hr:Displays a horizontal line
+hr ()
+{ 
+  printf '%0*d' $(tput cols) | tr 0 ${1:-_}
+}
+
+# help:hz_line:Same as hr
+alias hz_line='hr'
