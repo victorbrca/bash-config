@@ -59,3 +59,36 @@ canon-raw ()
     echo $i done
   done
 }
+
+# help:convert-to-mov:Converts video to mov
+convert-to-mov ()
+{
+  local filename
+  if [ "$1" ] ; then
+    filename="$1"
+  else
+    read -p "File: " filename
+  fi
+
+  if [ ! -f "$filename" ] ; then
+    return 1
+  fi
+
+  ffmpeg -i "$filename" -c:v dnxhd -profile:v dnxhr_hq -pix_fmt yuv422p -c:a pcm_s16le -f mov ${filename%.*}.mov
+}
+
+# help:convert-all-to-mov:Converts all videois in a folder mov
+convert-all-to-mov ()
+{
+  local filename
+
+  for filename in *.mp4 ; do
+    ffmpeg -i "$filename" -c:v dnxhd -profile:v dnxhr_hq -pix_fmt yuv422p -c:a pcm_s16le -f mov ${filename%.*}.mov
+  done
+
+  for filename in *.MP4 ; do
+    ffmpeg -i "$filename" -c:v dnxhd -profile:v dnxhr_hq -pix_fmt yuv422p -c:a pcm_s16le -f mov ${filename%.*}.mov
+  done
+
+  ls -l
+}
