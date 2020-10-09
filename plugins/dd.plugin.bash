@@ -29,6 +29,10 @@ dd_iso ()
     return 1
   fi
 
-  sudo dd bs=4M if="$iso" of="$device" status=progress oflag=sync
+  if command -v pv > /dev/null ; then
+    pv -tpreb "$iso" | sudo dd of="$device" bs=4M oflag=sync
+  else
+    sudo dd bs=4M if="$iso" of="$device" status=progress oflag=sync
+  fi
 }
 
