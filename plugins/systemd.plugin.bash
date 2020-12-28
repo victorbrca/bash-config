@@ -109,7 +109,7 @@ _list_cmd_opts_sc () {
     esac
 }
 
-#help:sc:Systemd fzf wrapper
+# help:sc:Systemd fzf wrapper
 sc ()
 {
   local cmd usage elevated_cmds
