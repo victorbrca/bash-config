@@ -2,10 +2,6 @@
 ## about:Misc notification aliases
 #
 
-# Sets up undistract-me for long running commands (longer than 10 secs)
-[ -f /etc/profile.d/undistract-me.sh ] && \
-  . /etc/profile.d/undistract-me.sh
-
 # help:notify-audio:Displays a notification and an alert
 notify-audio () {
   if [ $# -lt 1 -o $# -gt 2 ] ; then
