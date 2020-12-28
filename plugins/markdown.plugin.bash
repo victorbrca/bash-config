@@ -2,11 +2,8 @@
 ## about:Aliases for markdown files
 #
 
-if ! command -v pandoc > /dev/null ; then
-  echo "[bash-config] Please install pandoc before enabling the markdown plugin"
-  return 0
-elif ! command -v lynx > /dev/null ; then
-  echo "[bash-config] Please install lynx before enabling the markdown plugin"
+if ! command -v glow > /dev/null ; then
+  echo "[bash-config] Please install glow before enabling the markdown plugin"
   return 0
 fi
 
@@ -18,7 +15,7 @@ readmd ()
   elif [ ! -f "$1" ] ; then
     echo "$1 is not a file"
   else
-    pandoc $1 | lynx -stdin -scrollbar on -vikeys
+    glow -p $1
   fi
 }
 
