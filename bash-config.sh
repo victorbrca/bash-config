@@ -199,6 +199,12 @@ _install_bash_config ()
   echo -e "Copying files... \c"
   cp -a lib plugins themes bash-config.conf "${bash_config_dir}/." && echo ok || \
    { echo "failed" ; exit 1 ; }
+  echo -e "Creating the plugins folder... \c"
+  mkdir -p "${bash_config_dir}/plugins/enabled" && echo ok || \
+   { echo "failed" ; exit 1 ; }
+  echo -e "Creating the themes folder... \c"
+  mkdir -p "${bash_config_dir}/themes/enabled" && echo ok || \
+   { echo "failed" ; exit 1 ; }
 
   echo -e "Enabling config file... \c"
   grep -q '. ${HOME}/.bash-config/bash-config.conf' "${HOME}/.bashrc" 
