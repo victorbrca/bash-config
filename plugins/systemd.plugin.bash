@@ -161,7 +161,7 @@ examples:
       echo -e "$usage"
       ;;
     *)
-      $cmd $2 
+      systemctl $*
       ;;
   esac
 }
