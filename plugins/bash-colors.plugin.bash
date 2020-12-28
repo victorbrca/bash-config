@@ -2,6 +2,8 @@
 # define color variables for script
 ########################################
 
+echo "[bash-config: bash-colors] Enabling this plugin can cause issues with colored prompts"
+
 # Reset
 Color_Off='\e[0m'       # Text Reset
 
