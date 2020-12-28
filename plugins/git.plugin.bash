@@ -15,7 +15,21 @@ alias gitcmt='git commit'
 alias gitcmtdate='git commit -m "`date`"'
 
 # help:gitpushom:git push -u origin master
-alias gitpushom='git push -u origin master'
+gitpushom ()
+{
+  git_branch="$(git branch | grep '*' | awk '{print $2}')"
+  if [ ! "$git_branch" ] ; then
+    echo "Could not find the branch"
+    return 1
+  elif ! [[ $git_branch =~ (main|master) ]] ; then
+    echo "The branch \"$git_branch\" is not \"main\" or \"master\""
+    return 1
+  fi
+
+  echo "Pushing to $git_branch"
+  sleep 2
+  git push -u origin "$git_branch"
+}
 
 # help:git-update:Adds, commits and push files on a Git repo 
 git-update ()
@@ -63,6 +77,17 @@ git-update ()
   echo -e "Commit message will be \"${commit_message}\"\n"
   read -p "Hit \"Enter\" to continue or \"Ctrl+c\" to quit: "
 
+  # Figure out git brach. We only work with master or main
+  git_branch="$(git branch | grep '*' | awk '{print $2}')"
+  if [ ! "$git_branch" ] ; then
+    echo "Could not find the branch"
+    return 1
+  fi
+  if ! [[ $git_branch =~ (main|master) ]] ; then
+    echo "The branch \"$git_branch\" is not \"main\" or \"master\""
+    return 1
+  fi
+
   # add local changes
   if (( $(git status -s | wc -l) > 0  )) ; then
     echo -e "\n${UYellow}Adding modified files${Color_Off}"
@@ -88,7 +113,7 @@ git-update ()
   echo -e "\n${UYellow}Pushing needed changes${Color_Off}" 
   git_remote_status=$(git status | grep "Your branch is" | awk '{print $4}')
   case $git_remote_status in
-    ahead) git push -u origin master -v || \
+    ahead) git push -u origin $git_branch -v || \
        { echo -e "${Red}Failed${Color_Off}" ; return 1 ; }
       ;;
     behind) echo -e "${Blinking_Red}Please run git pull manually${Color_Off}\n" 
