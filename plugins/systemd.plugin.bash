@@ -87,7 +87,7 @@ _list_cmd_opts_sc () {
   local cur selctd_svc selctd_svc_opt
   cur=${COMP_WORDS[COMP_CWORD]}
   case $COMP_CWORD in
-    1)
+    1) # Gets list of systemctl commands from $systemd_cmd_opts
       COMPREPLY=($(compgen -W "$(echo "$systemd_cmd_opts")" "$cur"))
       ;;
     2) 
@@ -102,9 +102,19 @@ _list_cmd_opts_sc () {
            | fzf -q "${COMP_WORDS[2]}" -e --reverse --tiebreak=index)
         fi
         selctd_svc=$(echo $selctd_svc | awk '{print $1 , $NF}')
+        selctd_svc_opt=$(echo "$systemd_svc_opts" | fzf -e --reverse --tiebreak=index)
       fi
-      selctd_svc_opt=$(echo "$systemd_svc_opts" | fzf -e --reverse --tiebreak=index)
       COMPREPLY="$selctd_svc $selctd_svc_opt"
+      ;;
+    4)
+      if [[ "${COMP_WORDS[1]}" == "service" ]] ; then
+        if [[ ! "${COMP_WORDS[4]}" ]] ; then
+          selctd_svc_opt=$(echo "$systemd_svc_opts" | fzf -e --reverse --tiebreak=index)
+        elif [[ "${COMP_WORDS[4]}" ]] ; then
+          selctd_svc_opt=$(echo "$systemd_svc_opts" | fzf -q "${COMP_WORDS[4]}" -e --reverse --tiebreak=index)
+        fi
+        COMPREPLY="$selctd_svc_opt"
+      fi
       ;;
     esac
 }
