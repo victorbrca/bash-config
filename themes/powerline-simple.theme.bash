@@ -10,12 +10,6 @@
 #  |   |- User
 #  |- $?
 
-## User choices
-battery_info="y"
-sudo_info="y"
-# Choose from: ⌚, ⏳, ✰, ⵌ, ✷
-sudo_icon="⏳"
-
 #Colors
 PS_Green='\[\e[32m\]'
 PS_Red='\[\e[31m\]'

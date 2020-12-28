@@ -10,20 +10,6 @@
 #  |   |- User
 #  |- $?
 
-## User choices
-battery_info="n"
-sudo_info="y"
-
-# Icons
-# Choose from: ⌚, ⏳, ✰, ⵌ, ✷, , ⚙
-sudo_icon="⚙"
-git_folder_icon=""
-bitbucket_icon=""
-github_icon=""
-dropbox_icon=""
-home_folder_icon=""
-default_folder_icon=""
-
 #Colors
 PS_Green='\[\e[32m\]'
 PS_Red='\[\e[31m\]'

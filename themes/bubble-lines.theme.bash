@@ -10,17 +10,6 @@
 #|    |- Username
 #|- Exit code
 
-## User choices
-battery_info="y"
-sudo_info="y"
-
-# Choose from: ⌚, ⏳, ✰, ⵌ, ✷
-sudo_icon="ⵌ"
-
-# For online status, make sure to also add the line below to cron
-# * * * * * /bin/bash ~/.bash-config/themes/lib/online-check.sh
-online_status="y"
-
 # Reset
 PS_Color_Off='\[\e[0m\]'
 
