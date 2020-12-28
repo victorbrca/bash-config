@@ -145,7 +145,11 @@ examples:
         cmd_arg="--now"
       fi
 
-      $cmd $4 $cmd_arg $2
+      if [[ "$4"  == "status" ]] ; then
+        $cmd $4 $cmd_arg $2 --no-pager
+      else
+        $cmd $4 $cmd_arg $2
+      fi
 
       if [[ $4 =~ $elevated_cmds ]] ; then
         echo showing status
