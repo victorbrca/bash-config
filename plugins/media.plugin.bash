@@ -2,6 +2,16 @@
 ## about:Misc media manipulation aliases
 #
 
+if ! command -v convert > /dev/null ; then
+  echo "[bash-config: media] convert is not installed and it's needed by the media plugin"
+  return 1
+fi
+
+if ! command -v ffmpeg > /dev/null ; then
+  echo "[bash-config: media] ffmpeg is not installed and it's needed by the media plugin"
+  return 1
+fi
+
 # Media manipulation
 # help:renpic:Rename files to in directory to [number].jpg
 alias renpic='e="1"; for i in `ls` ; do mv "$i" "$e.jpg" ; e=$(( e + 1 )) ; done'
