@@ -6,7 +6,11 @@
 alias grep='grep --color=auto'
 
 # Setup the tree command
-if command -v tree > /dev/null ; then
+if command -v lsd > /dev/null ; then
+  tree_cmd () {
+    lsd --tree --depth 1
+  }
+elif command -v tree > /dev/null ; then
   tree_cmd () {
     tree -L 1 -tF
   }
