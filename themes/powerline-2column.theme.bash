@@ -2,14 +2,6 @@
 ## about:A simplified powerline prompt
 #
 
-#  ✓ victor ⏻ 94% ⏳ ~/bin master  ✔ 
-#  |   |    |     |    |     |- Git status
-#  |   |    |     |    |- PWD
-#  |   |    |     |- sudo status
-#  |   |    |- battery indicator and percentage
-#  |   |- User
-#  |- $?
-
 #Colors
 PS_Green='\[\e[32m\]'
 PS_Red='\[\e[31m\]'
