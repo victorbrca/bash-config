@@ -89,12 +89,12 @@ _enable ()
       if [ "$file_type" = "themes" ] ; then
         current_enabled_theme="$(find ${bash_config_dir}/${file_type}/enabled -type l)"
         if [ -L "$current_enabled_theme" ] ; then
-          echo "Disabling the current theme first"
+          echo "Disabling the current theme."
           unlink "$current_enabled_theme"
         fi
       fi
       ln -sf "$source_file" "$dest_file"
-      echo "Enabled the ${file_type/s/} \"$file_to_enable\""
+      echo "Enabled the ${file_type/s/} \"$file_to_enable\". Please reload your shell."
     fi
   done
 
@@ -241,8 +241,16 @@ _upgrade ()
    /tmp/bash-plugins/enabled.themes && echo "ok" || { echo "failed" ; exit 1 ; }
 
   echo -e "Copying files... \c"
-  cp -a lib plugins themes bash-config.conf "${bash_config_dir}/." && echo ok || \
+  cp -a lib plugins themes "${bash_config_dir}/." && echo ok || \
    { echo "failed" ; exit 1 ; }
+
+  echo -e "Checking config file... \c"
+  if ! command diff "${bash_config_dir}/bash-config.conf" bash-config.conf &> /dev/null ; then
+    cp bash-config.conf "${bash_config_dir}/bash-config.conf.new"
+    echo "A new config file was copied to ${bash_config_dir}/bash-config.conf.new"
+  else
+    echo "ok"
+  fi
 
   echo -e "Copying new bash-config.sh to ${HOME}/bin... \c"
   mkdir -p "${HOME}/bin"
