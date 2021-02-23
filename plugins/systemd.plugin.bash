@@ -129,7 +129,7 @@ examples:
 \tsc service mpd.service user restart
 \tsc service mpd.service enable now user
 \tsc daemon-reload
-\tsc daemon-reload user
+\tsc daemon-reload --user
 "
 
   elevated_cmds='(start|stop|restart|enable|disable|reenable|try-restart|reload|force-reload|try-reload-or-restart|try-restart|mask|unmask)'
@@ -162,9 +162,9 @@ examples:
       fi
 
       if [[ $4 =~ $elevated_cmds ]] ; then
-        echo showing status
+        echo getting status
         sleep .5
-        systemctl status $2 --no-pager
+        $cmd status $2 --no-pager
       fi
       ;;
     -h)
