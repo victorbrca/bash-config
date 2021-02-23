@@ -23,8 +23,10 @@ if command -v fzf > /dev/null ; then
   export FZF_COMPLETION_TRIGGER='**'
   # Cycle with tab
   export FZF_DEFAULT_OPTS='--bind tab:down --cycle'
-  . /usr/share/fzf/key-bindings.bash
-  . /usr/share/fzf/completion.bash
+  [ -f /usr/share/fzf/key-bindings.bash ] && . /usr/share/fzf/key-bindings.bash
+  [ -f /usr/share/fzf/completion.bash ] && . /usr/share/fzf/completion.bash
+  [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && . /usr/share/doc/fzf/examples/key-bindings.bash
+  [ -f /usr/share/doc/fzf/examples/completion.bash ] && . /usr/share/doc/fzf/examples/completion.bash
   # help:preview:Interactive preview for files in a folder
   preview () 
   {
