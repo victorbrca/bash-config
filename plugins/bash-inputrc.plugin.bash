@@ -25,5 +25,8 @@ bind TAB:menu-complete
 # reverse with shift
 bind '"\e[Z": "\e-1\C-i"'
 
+# Edit command in vim
+bind '"\ei": edit-and-execute-command'
+
 # Sets color for file types
 set colored-stats on

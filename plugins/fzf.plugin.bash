@@ -27,6 +27,11 @@ if command -v fzf > /dev/null ; then
   [ -f /usr/share/fzf/completion.bash ] && . /usr/share/fzf/completion.bash
   [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && . /usr/share/doc/fzf/examples/key-bindings.bash
   [ -f /usr/share/doc/fzf/examples/completion.bash ] && . /usr/share/doc/fzf/examples/completion.bash
+
+  # Set bindings in case it did not work
+  bind -x '"\C-r": __fzf_history__'
+  bind -x '"\C-t": fzf-file-widget'
+
   # help:preview:Interactive preview for files in a folder
   preview () 
   {

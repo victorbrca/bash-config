@@ -27,5 +27,5 @@ export LESS_TERMCAP_so=$'\E[30;47m'       # highlights - Black on white
 export LESS_TERMCAP_ue=$'\e[0m'           # end underline
 export LESS_TERMCAP_us=$'\e[04;38;5;146m' # begin underline
 
-# Set vi mode for input
-set -o vi
+# Set vi mode for input  # changed to bind to use 'Esc+i' to invoke
+# set -o vi
