@@ -182,16 +182,16 @@ _get_battery_info () {
   ac_adapter_disconnected=$(echo "$ac_adapter_info" | grep 'state' | grep -wq 'discharging' ; echo $?)
   ac_adapter_connected=$(echo "$ac_adapter_info" | grep 'state' | grep -wq 'charging' ; echo $?)
 
-  battery_prefix="${White}${On_Black} "
+  battery_prefix="${PS_White}${On_Black} "
   let ps1r_cnt+=2
 
   battery_percentage="$(echo "$ac_adapter_info" | grep percentage | grep -o "[0-9]\+")"
   #battery_percentage=100
   if (( battery_percentage == 100 )) ; then
-    battery_status="${battery_prefix}${White}${On_Black}${battery_percentage}% "
+    battery_status="${battery_prefix}${PS_White}${On_Black}${battery_percentage}% "
     let ps1r_cnt+=5
   elif (( battery_percentage > 70 )) ; then
-    battery_status="${battery_prefix}${White}${On_Black}${battery_percentage}% "
+    battery_status="${battery_prefix}${PS_White}${On_Black}${battery_percentage}% "
     let ps1r_cnt+=4
   elif (( battery_percentage < 70 )) && (( battery_percentage > 40 )) ; then
     battery_status="${battery_prefix}${Yellow}${On_Black}${battery_percentage}% "
@@ -204,6 +204,9 @@ _get_battery_info () {
 
 _date ()
 {
+  # Background
+  On_Black='\001\e[40m\002'
+
   local date_now
   date_now="$(date '+%H:%M%P')"
   let ps1r_cnt+=${#date_now}
