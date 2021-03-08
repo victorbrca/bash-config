@@ -79,9 +79,9 @@ _git_branch ()
     # Get count of modded files
     modified="$(git status --porcelain | grep -v '^?' | wc -l)"
     untracked="$(git status --porcelain | grep '^?' | wc -l)"
-    if [ $modified -gt 0 ] || [ $untracked -gt 0 ] ; then
-      [ $modified -gt 0 ] && git_branch_info="${git_branch_info} ${modified}"
-      [ $untracked -gt 0 ] && git_branch_info="${git_branch_info} ${untracked}"
+    if [[ $modified -gt 0 ]] || [[ $untracked -gt 0 ]] ; then
+      [[ $modified -gt 0 ]] && git_branch_info="${git_branch_info} ${modified}"
+      [[ $untracked -gt 0 ]] && git_branch_info="${git_branch_info} ${untracked}"
     else
       git_branch_info="${git_branch_info} ✔"
     fi
