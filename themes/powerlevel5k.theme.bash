@@ -62,7 +62,7 @@ _setup_ssh_prompt ()
   let ps1l_cnt+=${char_cnt}
 }
 
-_git_branch ()
+_pl5k_git_branch ()
 {
   local git_status modified untracked ahead_behind gitbranch
 
@@ -99,7 +99,7 @@ _git_branch ()
   fi
 }
 
-_git_colors () {
+_pl5k_git_colors () {
   local On_Purple On_Green Black White Purple Green git_status
 
   # Background
@@ -116,7 +116,7 @@ _git_colors () {
   # Reset
   Color_Off='\001\e[0m\002'
 
-  _git_branch
+  _pl5k_git_branch
   let ps1l_cnt+=${#git_branch_info}
 
   if [ "$git_branch_info" ] ; then
@@ -219,7 +219,7 @@ _date ()
 _prompt_left ()
 {
   _setup_ssh_prompt
-  _git_colors
+  _pl5k_git_colors
   _folder_type
 
   # Convert PWD to ~ when in home
