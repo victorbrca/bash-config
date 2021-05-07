@@ -29,11 +29,11 @@ if command -v fzf > /dev/null ; then
   [ -f /usr/share/doc/fzf/examples/completion.bash ] && . /usr/share/doc/fzf/examples/completion.bash
 
   # Set bindings in case it did not work
-  bind -x '"\C-r": __fzf_history__'
-  bind -x '"\C-t": fzf-file-widget'
+  bind -X | grep -q fzf_history || bind -x '"\C-r": __fzf_history__'
+  bind -X | grep -q fzf-file-widget || bind -x '"\C-t": fzf-file-widget'
 
   # help:preview:Interactive preview for files in a folder
-  preview () 
+  preview ()
   {
     fd -d 1 -t f | fzf --preview 'bat --color "always" --wrap "auto" {}' \
     --bind 'alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,ctrl-q:abort,ctrl-m:execute:(bat --paging=always \
