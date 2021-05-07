@@ -21,6 +21,7 @@ gitgraph ()
 - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- \
 %an%C(reset)%C(bold yellow)%d%C(reset)' --all
 }
+alias git-graph='gitgraph'
 
 # help:gitpushom:git push -u origin master
 gitpushom ()
