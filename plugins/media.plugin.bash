@@ -70,10 +70,29 @@ canon-raw ()
   done
 }
 
-# help:convert-to-mov:Converts video to mov
-convert-to-mov ()
+# help:convert-mp4-to-mov:Converts mp4 video to mov
+convert-mp4-to-mov ()
 {
   local filename
+
+  if [ "$1" ]; then
+    filename="$1"
+  else
+    read -p "File: " filename
+  fi
+
+  if [ ! -f "$filename" ]; then
+    return 1
+  fi
+
+  ffmpeg -i "$filename" -c:v mpeg4 -qscale:v 1 -c:a pcm_s16le -f mov ${filename%.*}.mov
+}
+
+# help:convert-mp4-to-mov-hq:Converts mp4 video to mov HQ
+convert-mp4-to-mov-hq ()
+{
+  local filename
+
   if [ "$1" ] ; then
     filename="$1"
   else
@@ -87,8 +106,8 @@ convert-to-mov ()
   ffmpeg -i "$filename" -c:v dnxhd -profile:v dnxhr_hq -pix_fmt yuv422p -c:a pcm_s16le -f mov ${filename%.*}.mov
 }
 
-# help:convert-all-to-mov:Converts all videois in a folder mov
-convert-all-to-mov ()
+# help:convert-all-mp4-to-mov-hq:Converts all mp4 videos in a folder to mov HQ
+convert-all-mp4-to-mov-hq ()
 {
   local filename
 
