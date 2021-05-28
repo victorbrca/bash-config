@@ -61,14 +61,22 @@ alias bakdir='bakfolder'
 
 # help:hidefile:Hides a file by adding a '.'
 hidefile () {
-  FILE="$1"
+  local FILE="$1"
   if [ -f "$FILE" ] ; then
     mv "$FILE" ".${FILE}"
   else
     echo -e "\nError: file \"$FILE\" does not exist!"
   fi
+}
 
-  unset FILE
+# help:unhidefile:Unfides a file by removing '.' from it's name
+unhidefile () {
+  local FILE="$1"
+  if [ -f ".${FILE}" ] ; then
+    mv ".${FILE}" "${FILE}"
+  else
+    echo -e "\nError: hidden file \"$FILE\" does not exist!"
+  fi
 }
 
 # help:catlf:cats the last modified file
@@ -164,6 +172,15 @@ alias tarz='tar -czvf'
 
 # help:dfh:df -hT
 alias dfh='df -hT -x squashfs'
+
+# help:dfu:duf for local files only
+dfu () {
+  if command -v duf &> /dev/null ; then
+    duf -hide network,fuse,special -hide-fs squashfs
+  else
+    echo "duf is not installed"
+  fi
+}
 
 # help:less:Uses vim as less for syntax highlight
 #alias less='/usr/share/vim/vim*/macros/less.sh'
