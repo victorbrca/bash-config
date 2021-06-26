@@ -131,15 +131,18 @@ last_installed ()
 
 complete -W 'install update search list remove upgrade clean' pac
 
+# shellcheck disable=SC2120
 checkupdates ()
 {
   local opt
 
+  # Check if 'checkupdates' is installed
   if ! command -v checkupdates > /dev/null ; then
     echo "[bash-config: pacman] pacman-contrib is not installed"
     return 1
   fi
 
+  # checks if we are using pacaur or yay for AUR helper
   if command -v yay > /dev/null ; then
     checkupdates_aur="yay -Qum"
   elif command -v pacaur > /dev/null ; then
@@ -148,6 +151,7 @@ checkupdates ()
     checkupdates_aur="[bash-config: pacman] Could not find an AUR helper. Will not show AUR update"
   fi
 
+  # checks arguments
   if [[ $# -eq 1 ]] ; then
     if [[ "$1" == "-l" ]] ; then
       opt="long"
@@ -160,13 +164,16 @@ checkupdates ()
     fi
   fi
 
+  # Runs for aur only
   if [[ "$opt" == "aur" ]] ; then
-    eval $checkupdates_aur
+    $checkupdates_aur
+  # No option or long option
   else
     pac_update_text="$(/usr/bin/checkupdates)"
-    pac_updates=$(echo "$pac_update_text" | egrep '[a-z]' | wc -l)
-    aur_update_text="$(eval "$checkupdates_aur" | grep -v bash-config)"
-    aur_updates=$(echo "$aur_update_text" | wc -l)
+    aur_update_text="$($checkupdates_aur | grep -v bash-config)"
+    # Adds count to output, including a 0
+    pac_updates=$(echo "$pac_update_text" | grep '[a-z]' | wc -l)
+    aur_updates=$(echo "$aur_update_text" | grep '[a-z]' | wc -l)
     total_updates=$(( pac_updates + aur_updates))
     if [[ "$opt" != "long" ]] ; then
       echo "There are a total of $total_updates packages to be updated"
