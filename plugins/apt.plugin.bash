@@ -4,16 +4,16 @@
 
 
 # help:aptdate:Updates package list
-alias aptdate='sudo apt-get update'
+alias aptdate='sudo apt update'
 
 # help:aptgrade:Updates all packages
-alias aptgrade='sudo apt-get upgrade'
+alias aptgrade='sudo apt upgrade'
 
 # help:apts:Search for package
-alias apts='apt-cache search'
+alias apts='apt search'
 
 # help:aptrm:Removes package
-alias aptrm='sudo apt-get remove'
+alias aptrm='sudo apt remove'
 
 
 # help:aptinst:Install apt packages
@@ -25,7 +25,7 @@ aptinst ()
     apt_log="/dev/null"
   fi
 
-  sudo apt-get install "$@"
+  sudo apt install "$@"
 
   if [[ $? -eq 0 ]] ; then
     echo -e "\n** Logging installed packages"
