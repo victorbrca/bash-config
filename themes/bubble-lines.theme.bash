@@ -41,6 +41,18 @@ _sudo_status () {
   fi
 }
 
+_needs_restart () {
+  if [ -f "${bash_config_themes_folder}/lib/needs-restart.sh" ] ; then
+    needs_restart="$(bash ${bash_config_themes_folder}/lib/needs-restart.sh)"
+
+    if [ "$needs_restart" ] ; then
+      echo -e "─[${Func_Blue}$needs_restart${Func_Color_Off}]"
+    else
+      unset needs_restart
+    fi
+  fi
+}
+
 _bubble_line_git_branch () 
 {
   local gitbranch gitinfo gitstatus ahead_behind modified
@@ -119,6 +131,7 @@ export PS1="\`if [ \$? = 0 ]; then echo ${PS_Green}●${PS_Color_Off}; else \
 echo ${PS_Red}●${PS_Color_Off}; fi\`\
 ─[${PS_Yellow}${ps1_header}${PS_Color_Off}]─[${PS_Blue}\w${PS_Color_Off}]\
 \`if [ \$battery_info = y ] ; then _get_battery_info ; fi\`\
+\`if [ \$restart_info = y ] ; then _needs_restart ; fi\`\
 \`if [ \$sudo_info = y ] ; then _sudo_status ; fi\`\
 \`_bubble_line_git_branch\`─\`if [ \$online_status = y ] ; then _online_status ; else echo ● ; fi\`\
 \n└─● "

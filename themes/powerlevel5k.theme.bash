@@ -163,6 +163,19 @@ _sudo_status () {
   fi
 }
 
+_needs_restart () {
+  if [ -f "${bash_config_themes_folder}/lib/needs-restart.sh" ] ; then
+    needs_restart="$(bash ${bash_config_themes_folder}/lib/needs-restart.sh)"
+
+    if [ "$needs_restart" ] ; then
+      restart_status="${PS_On_Black}${PS_White}${PS_On_Black} $needs_restart ${PS_Color_Off}"
+      let ps1r_cnt+=4
+    else
+      unset needs_restart
+    fi
+  fi
+}
+
 _get_battery_info () {
   local Yellow Red On_Gray On_Black Green ac_adapter_disconnected battery_icon \
     battery_prefix battery_percentage
@@ -256,11 +269,15 @@ _prompt_right ()
     _get_battery_info
   fi
 
+  if [[ "$restart_info" = "y" ]] ; then
+    _needs_restart
+  fi
+
   if [[ "$sudo_info" = "y" ]] ; then
     _sudo_status
   fi
 
-  PS1R="${exit_status}${sudo_status}${battery_status}${date_str}"
+  PS1R="${exit_status}${restart_status}${sudo_status}${battery_status}${date_str}"
   unset exit_status sudo_status battery_status date_str 
 }
 
