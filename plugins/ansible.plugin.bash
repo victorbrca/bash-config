@@ -6,14 +6,13 @@
 alias ansi-play='ansible-playbook'
 
 # help:ansi-init:Creates an Ansible role folder
-ansi-init ()
-{
+ansi-init () {
   local usage
   usage="Usage: ansi-init {simple} [role]"
 
   if [ $# -lt 1 ] || [[ "$1" == "-h" ]] ; then
     echo "$usage"
-    return 1
+    return 0
   elif [ $# -eq 2 ] && [[ "$1" == "simple" ]] ; then
     if [ -d "$2" ] ; then
       echo "The file/folder \"$1\" already exists"
@@ -23,13 +22,21 @@ ansi-init ()
     touch "${2}"/{tasks,vars}/main.yaml
     echo -e "---\n# vars file for $2" > "${2}"/vars/main.yaml
     echo -e "---\n# tasks file for $2" > "${2}"/tasks/main.yaml
+
+    # Gets README file
+    wget -q https://raw.githubusercontent.com/ansible/ansible/devel/lib/ansible/galaxy/data/default/role/README.md \
+      -O "${2}/README.md"
+
+    # Add static badges
+    badges="[passing](https://i.imgur.com/aWfHWAS.png?1) [testing](https://i.imgur.com/kFpR3ez.png?1) [failure](https://i.imgur.com/6NO538f.png?1)"
+    sed -i "/^===/a $badges" "${2}/README.md"
   else
     if [ -d "$1" ] ; then
       echo "The file/folder \"$1\" already exists"
       return 1
     fi
     ansible-galaxy init "$1"
-  fi 
+  fi
 }
 
 # help:ansi-playlist:ansible-playbook --list-hosts
@@ -168,11 +175,11 @@ ansible-template ()
     blockinfile)
       module_description="
 - name:                                   # Insert/update/remove a text block surrounded by marker lines
-  blockinfile:      
+  blockinfile:
     path: /etc/foo.conf                   # The file to modify
     create: yes|no*                       # Create a new file if it doesn't exist.
     owner: foo                            # Name of the user that should own the file
-    group: foo                            # Name of the group that should own the file    
+    group: foo                            # Name of the group that should own the file
     mode: 0755                            # Mode the file or directory should be
     marker: \"# {mark} ANSIBLE BLOCK ##\"   # The marker line template. \"{mark}\" will be replaced with the values in marker_begin (default=\"BEGIN\") and marker_end (default="END").
     insertafter: \"<body>\"                 # If specified, the block will be inserted after the last match of specified regular expression.
@@ -221,12 +228,12 @@ ansible-template ()
       ;;
     file)
       module_description="
-- name: Sets attributes of files, symlinks, and directories, or removes files/symlinks/directories 
+- name: Sets attributes of files, symlinks, and directories, or removes files/symlinks/directories
   file:
     path: /etc/foo.conf                   # Path to the file being managed.
-    state: [present|directory|file|link]  
+    state: [present|directory|file|link]
     owner: foo                            # Name of the user that should own the file
-    group: foo                            # Name of the group that should own the file    
+    group: foo                            # Name of the group that should own the file
     mode: 0755                            # Mode the file or directory should be
     recurse: no*|yes                      # Recursively set the specified file attributes
   become: yes                             # Run actions as root
@@ -240,7 +247,7 @@ ansible-template ()
     url_username:                           # The username for use in HTTP basic authentication.
     url_password:                           # The password for use in HTTP basic authentication.
     use_proxy: no|yes*                      # If no, it will not use a proxy, even if one is defined in an environment variable on the target hosts.
-    validate_certs: no|yes*                 # If no, SSL certificates will not be validated. 
+    validate_certs: no|yes*                 # If no, SSL certificates will not be validated.
     timeout: 10*                            # Timeout in seconds for URL request.
     dest: /etc/foo.conf                     # Absolute path of where to download the file to.
     owner: foo                              # Name of the user that should own the file/directory, as would be fed to chown
@@ -298,9 +305,9 @@ ansible-template ()
     service)
       module_description="
 - name: Manage services
-  systemd: 
+  systemd:
     name: foo.service                         # Name of the service
-    state: reloaded|restart|started|stopped   # 
+    state: reloaded|restart|started|stopped   #
     enabled: no|yes                           # Whether the service should start on boot
   become: yes                                 # Run actions as root
 "
@@ -346,9 +353,9 @@ ansible-template ()
     systemd)
       module_description="
 - name: Manage services
-  systemd: 
+  systemd:
     name: foo.service                         # Name of the service
-    state: reloaded|restart|started|stopped   # 
+    state: reloaded|restart|started|stopped   #
     enabled: no|yes                           # Whether the service should start on boot
     scope: system*|user|global                # run systemctl within a given service manager scope
     daemon_reload: no*|yes                    # run daemon-reload before doing any other operations, to make sure systemd has read any changes
