@@ -16,15 +16,14 @@ PS_On_Blue='\[\e[44m\]'
 PS_White='\[\e[0;37m\]'
 PS_On_Black='\[\e[40m\]'
 
-_folder_type ()
-{
+_pl5k_folder_type () {
   if git status &> /dev/null ; then
     git_provider="$(git remote -v | tail -1 | awk '{print $2}')"
     if [ "$git_provider" ] ; then
       case $git_provider in
         *bitbucket*)
           folder_type_icon=" $bitbucket_icon"
-          ;;  
+          ;;
         *github*)
           folder_type_icon=" $github_icon"
           ;;
@@ -47,8 +46,7 @@ _folder_type ()
   let ps1l_cnt+=2
 }
 
-_setup_ssh_prompt ()
-{
+_pl5k_setup_ssh_prompt () {
   local char_cnt
 
   if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
@@ -62,8 +60,7 @@ _setup_ssh_prompt ()
   let ps1l_cnt+=${char_cnt}
 }
 
-_pl5k_git_branch ()
-{
+_pl5k_git_branch () {
   local git_status modified untracked ahead_behind gitbranch
 
   gitbranch=$(git branch 2> /dev/null | grep '\*' | sed -e 's/* \(.*\)/\1/')
@@ -135,9 +132,15 @@ _pl5k_git_colors () {
   unset git_branch_info
 }
 
-_last_exit_status ()
-{
-  if [ $? = 0 ] ; then
+_pl5k_last_exit_status () {
+  local exit_code=$?
+
+  # Add fix for undistract-me - https://github.com/jml/undistract-me/commit/4dff2a7c9acf909581e520fc4a016a6e5df08cdf
+  if [[ "$__preexec_exit_status" ]] ; then
+    exit_code="$__preexec_exit_status"
+  fi
+
+  if [[ $exit_code -eq 0 ]] ; then
     exit_status="${PS_Black}${PS_Green}${PS_On_Black} ✓ ${PS_Color_Off}"
   else
     exit_status="${PS_Black}${PS_Red}${PS_On_Black} ✗ ${PS_Color_Off}"
@@ -147,7 +150,7 @@ _last_exit_status ()
   let ps1r_cnt+=4
 }
 
-_sudo_status () {
+_pl5k_sudo_status () {
   # Background
   # On_Black='\001\e[40m\002'
 
@@ -163,7 +166,7 @@ _sudo_status () {
   fi
 }
 
-_needs_restart () {
+_pl5k_needs_restart () {
   if [ -f "${bash_config_themes_folder}/lib/needs-restart.sh" ] ; then
     needs_restart="$(bash ${bash_config_themes_folder}/lib/needs-restart.sh)"
 
@@ -176,7 +179,7 @@ _needs_restart () {
   fi
 }
 
-_get_battery_info () {
+_pl5k_get_battery_info () {
   local Yellow Red On_Gray On_Black Green ac_adapter_disconnected battery_icon \
     battery_prefix battery_percentage
 
@@ -215,8 +218,7 @@ _get_battery_info () {
   fi
 }
 
-_date ()
-{
+_pl5k_date () {
   # Background
   On_Black='\001\e[40m\002'
 
@@ -229,11 +231,10 @@ _date ()
   let ps1r_cnt+=6
 }
 
-_prompt_left ()
-{
-  _setup_ssh_prompt
+_pl5k_prompt_left () {
+  _pl5k_setup_ssh_prompt
   _pl5k_git_colors
-  _folder_type
+  _pl5k_folder_type
 
   # Convert PWD to ~ when in home
   PWD_HOME="${PWD/\/home\/$USER/\~}"
@@ -242,12 +243,12 @@ _prompt_left ()
   if [[ ${#PWD_HOME} -gt $(( COLUMNS - 60 )) ]] ; then
     PWD_HOME="/../${PWD_HOME##*/}"
   fi
-  
+
   # Add spaces
   PWD_HOME=" ${PWD_HOME} "
 
   let ps1l_cnt+="${#PWD_HOME}"
-  
+
   # Add spaces before and after username
   let ps1l_cnt+=2
 
@@ -261,31 +262,29 @@ ${PS_On_Blue}${PWD_HOME}${git_prompt_info}${PS_Color_Off}"
   unset folder_type_icon ps1_header git_prompt_info
 }
 
-_prompt_right ()
-{
-  _date
+_pl5k_prompt_right () {
+  _pl5k_date
 
   if [[ "$battery_info" = "y" ]] ; then
-    _get_battery_info
+    _pl5k_get_battery_info
   fi
 
   if [[ "$restart_info" = "y" ]] ; then
-    _needs_restart
+    _pl5k_needs_restart
   fi
 
   if [[ "$sudo_info" = "y" ]] ; then
-    _sudo_status
+    _pl5k_sudo_status
   fi
 
   PS1R="${exit_status}${restart_status}${sudo_status}${battery_status}${date_str}"
-  unset exit_status sudo_status battery_status date_str 
+  unset exit_status sudo_status battery_status date_str
 }
 
-_prompt ()
-{
-  _last_exit_status
-  _prompt_left
-  _prompt_right
+_pl5k_prompt () {
+  _pl5k_last_exit_status
+  _pl5k_prompt_left
+  _pl5k_prompt_right
   indent=$(($COLUMNS-${ps1r_cnt}-${ps1l_cnt}))
   indent_spaces="$(printf '%0.s ' $(seq 1 $indent))"
   PS1=$(printf "%s${indent_spaces}%s\n╰ " "$PS1L" "$PS1R")
@@ -293,7 +292,7 @@ _prompt ()
   unset ps1r_cnt
 }
 
-PROMPT_COMMAND=_prompt
+PROMPT_COMMAND=_pl5k_prompt
 
 export PS2="${PS_Green}>>${PS_Color_Off} "
 export PS4="${PS_Purple}++${PS_Color_Off} "
