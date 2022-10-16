@@ -143,3 +143,17 @@ convert-mp4-h264-to-h265() {
   fi
   ffmpeg -i "$filename" -c:v libx265 -vtag hvc1 ${filename%.*}_h265.mp4
 }
+
+# help:convert-all-mp4-h264-to-h265:Converts mp4 h264 video to h265
+convert-all-mp4-h264-to-h265() {
+  local filename
+  for filename in *.MP4; do
+    if [ -f "$filename" ]; then
+      mv "$filename" "${filename%.*}.mp4"
+    fi
+  done
+  for filename in *.mp4; do
+    ffmpeg -i "$filename" -c:v libx265 -vtag hvc1 "${filename%.*}_h265.mp4"
+  done
+  ls --color=auto -l
+}
