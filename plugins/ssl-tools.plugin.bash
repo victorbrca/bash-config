@@ -87,7 +87,7 @@ _ssl-tool_connect_download ()
   case $action in
     connect)
         echo | timeout 2 openssl s_client -connect ${server}:${port} ${opts} 2> \
-        /dev/null | egrep --color 'Verify return code.*|$' \
+        /dev/null | grep -E --color 'Verify return code.*|$' \
         || { echo "failed" ; return 1 ; }
         ;;
     download)

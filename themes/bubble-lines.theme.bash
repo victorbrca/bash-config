@@ -91,7 +91,7 @@ _bubble_line_git_branch ()
 _get_battery_info () {
   local ac_adapter_disconnected
 
-  ac_adapter_info="$(upower -i $(upower -e | grep BAT) |  egrep '(state|percentage)')"
+  ac_adapter_info="$(upower -i $(upower -e | grep BAT) |  grep -E '(state|percentage)')"
   ac_adapter_disconnected=$(echo "$ac_adapter_info" | grep 'state' | grep -q 'discharging' ; echo $?)
   ac_adapter_connected=$(echo "$ac_adapter_info" | grep 'state' | grep -q 'charging' ; echo $?)
 

@@ -42,7 +42,7 @@ aur ()
       info) shift ; /usr/bin/yaourt -Si "$@" ;;
       update) 
           /usr/bin/yaourt -Sy --aur
-          update_count=$(yaourt -Qu -a | grep aur | egrep -v "($(grep '^IgnorePkg' /etc/pacman.conf | awk -F"=" '{print $2}' | sed 's/^ //' | sed 's/ /|/g'))" | wc -l)
+          update_count=$(yaourt -Qu -a | grep aur | grep -E -v "($(grep '^IgnorePkg' /etc/pacman.conf | awk -F"=" '{print $2}' | sed 's/^ //' | sed 's/ /|/g'))" | wc -l)
           if (( update_count > 0 )) ; then
             echo -e "\nThere are $update_count AUR packages waiting to be updated. Would you like to go ahead?"
             read -p "[y|n]: " answr

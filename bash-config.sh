@@ -160,7 +160,7 @@ _list_plugins_and_themes ()
   for type in $(find ${bash_config_plugins_folder} -type f -name '*.plugin.bash' | sort) ; do
     description=$(grep '## about' $type | awk -F":" '{print $2}')
     type=$(echo $type | sed 's/.*\///')
-    if [[ $(echo "$plugins_enabled" | egrep -q "^${type}" ; echo $?) -eq 0 ]] ; then
+    if [[ $(echo "$plugins_enabled" | grep -E -q "^${type}" ; echo $?) -eq 0 ]] ; then
       printf '%-30s %s\n' "[x] ${type%%.plugin.bash}" "$description"
     else
       printf '%-30s %s\n' "[ ] ${type%%.plugin.bash}" "$description"
@@ -172,7 +172,7 @@ _list_plugins_and_themes ()
   for type in $(find ${bash_config_themes_folder} -maxdepth 1 -type f -name '*.theme.bash' | sort) ; do
     description=$(grep '## about' $type | awk -F":" '{print $2}')
     type="$(echo $type | sed 's/.*\///')"
-    if [[ $(echo "$theme_enabled" | egrep -q "^$type" ; echo $?) -eq 0 ]] ; then
+    if [[ $(echo "$theme_enabled" | grep -E -q "^$type" ; echo $?) -eq 0 ]] ; then
       printf '%-30s %s\n' "[x] ${type%%.theme.bash}" "$description"
     else
       printf '%-30s %s\n' "[ ] ${type%%.theme.bash}" "$description"

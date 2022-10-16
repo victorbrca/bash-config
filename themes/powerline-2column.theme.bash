@@ -178,7 +178,7 @@ _get_battery_info () {
   Yellow='\001\e[0;33m\002'
   Red='\001\e[0;31m\002'
 
-  ac_adapter_info="$(upower -i $(upower -e | grep BAT) |  egrep '(state|percentage)')"
+  ac_adapter_info="$(upower -i $(upower -e | grep BAT) |  grep -E '(state|percentage)')"
   ac_adapter_disconnected=$(echo "$ac_adapter_info" | grep 'state' | grep -wq 'discharging' ; echo $?)
   ac_adapter_connected=$(echo "$ac_adapter_info" | grep 'state' | grep -wq 'charging' ; echo $?)
 

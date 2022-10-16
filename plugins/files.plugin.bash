@@ -104,9 +104,9 @@ if [ "$#" = "0" ] ; then
   echo -e "Missing argument\nUsage: duch [-G|-M]\n-M\tFiles with size bigger \
 than 100MB\n-G\tFiles with size bigger than 1GB"
 elif [ "$1" = "-G" ] ; then
-  du -ch | sed 's/\.[0-9]//1' | egrep '^[0-9]{1,4}G' | sort -n
+  du -ch | sed 's/\.[0-9]//1' | grep -E '^[0-9]{1,4}G' | sort -n
 elif [ "$1" = "-M" ] ; then
-  du -ch | sed 's/\.[0-9]//1' | egrep '^[0-9]{3,4}M' | sort -nr | less
+  du -ch | sed 's/\.[0-9]//1' | grep -E '^[0-9]{3,4}M' | sort -nr | less
 else
   echo -e "duch: invalid option $1\nUsage: duch [-G|-M]\n-M\tFiles with size \
 bigger than 100MB\n-G\tFiles with size bigger than 1GB"
