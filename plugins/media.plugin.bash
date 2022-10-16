@@ -33,7 +33,7 @@ alias playmrt='mplayer -vo xv -vf rotate '
 
 # help:rotate270:Rotates specified pictures 270 degrees
 rotate270 ()
-{ 
+{
   for i in "$@" ; do
     convert -rotate 270 "$i" "$i"
   done
@@ -120,4 +120,32 @@ convert-all-mp4-to-mov-hq ()
   done
 
   ls -l
+}
+
+# help:convert-mov-to-mp4:Converts mov video to mp4 with AAC
+convert-mov-to-mp4 () {
+  local filename
+  if [ "$1" ] ; then
+    filename="$1"
+  else
+    read -p "File: " filename
+  fi
+  if [ ! -f "$filename" ] ; then
+    return 1
+  fi
+  ffmpeg -i "$filename" -vcodec h264 -acodec aac ${filename%.*}_h265.mp4
+}
+
+# help:convert-mp4-h264-to-h265:Converts mp4 h264 video to h265
+convert-mp4-h264-to-h265 () {
+  local filename
+  if [ "$1" ] ; then
+    filename="$1"
+  else
+    read -p "File: " filename
+  fi
+  if [ ! -f "$filename" ] ; then
+    return 1
+  fi
+  ffmpeg -i "$filename" -c:v libx265 -vtag hvc1  ${filename%.*}_h265.mp4
 }
