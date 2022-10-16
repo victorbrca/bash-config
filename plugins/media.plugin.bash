@@ -2,12 +2,12 @@
 ## about:Misc media manipulation aliases
 #
 
-if ! command -v convert > /dev/null ; then
+if ! command -v convert >/dev/null; then
   echo "[bash-config: media] convert is not installed and it's needed by the media plugin"
   return 1
 fi
 
-if ! command -v ffmpeg > /dev/null ; then
+if ! command -v ffmpeg >/dev/null; then
   echo "[bash-config: media] ffmpeg is not installed and it's needed by the media plugin"
   return 1
 fi
@@ -32,18 +32,16 @@ alias playm='mplayer -vo xv '
 alias playmrt='mplayer -vo xv -vf rotate '
 
 # help:rotate270:Rotates specified pictures 270 degrees
-rotate270 ()
-{
-  for i in "$@" ; do
+rotate270() {
+  for i in "$@"; do
     convert -rotate 270 "$i" "$i"
   done
 }
 
 # help:rezmovie:Shrinks movie to 50% (with a new name)
-rezmovie ()
-{
+rezmovie() {
   unset file
-  if [ "$#" -ne 1 ] ; then
+  if [ "$#" -ne 1 ]; then
     echo "Please provide a filename"
     echo "Usage: rezmovie [file_name]"
     return 0
@@ -51,7 +49,7 @@ rezmovie ()
 
   file="$1"
 
-  if [ ! -f "$file" ] ; then
+  if [ ! -f "$file" ]; then
     echo "Not a file"
     return 1
   fi
@@ -62,17 +60,15 @@ rezmovie ()
 }
 
 # help:cannon-raw:Converts canon raw file to jpg in a folder
-canon-raw ()
-{
-  for i in *.CR2
-    do dcraw -c -w $i | ppmtojpeg > `basename $i CR2`jpg
+canon-raw() {
+  for i in *.CR2; do
+    dcraw -c -w $i | ppmtojpeg >$(basename $i CR2)jpg
     echo $i done
   done
 }
 
 # help:convert-mp4-to-mov:Converts mp4 video to mov
-convert-mp4-to-mov ()
-{
+convert-mp4-to-mov() {
   local filename
 
   if [ "$1" ]; then
@@ -89,17 +85,16 @@ convert-mp4-to-mov ()
 }
 
 # help:convert-mp4-to-mov-hq:Converts mp4 video to mov HQ
-convert-mp4-to-mov-hq ()
-{
+convert-mp4-to-mov-hq() {
   local filename
 
-  if [ "$1" ] ; then
+  if [ "$1" ]; then
     filename="$1"
   else
     read -p "File: " filename
   fi
 
-  if [ ! -f "$filename" ] ; then
+  if [ ! -f "$filename" ]; then
     return 1
   fi
 
@@ -107,15 +102,14 @@ convert-mp4-to-mov-hq ()
 }
 
 # help:convert-all-mp4-to-mov-hq:Converts all mp4 videos in a folder to mov HQ
-convert-all-mp4-to-mov-hq ()
-{
+convert-all-mp4-to-mov-hq() {
   local filename
 
-  for filename in *.mp4 ; do
+  for filename in *.mp4; do
     ffmpeg -i "$filename" -c:v dnxhd -profile:v dnxhr_hq -pix_fmt yuv422p -c:a pcm_s16le -f mov ${filename%.*}.mov
   done
 
-  for filename in *.MP4 ; do
+  for filename in *.MP4; do
     ffmpeg -i "$filename" -c:v dnxhd -profile:v dnxhr_hq -pix_fmt yuv422p -c:a pcm_s16le -f mov ${filename%.*}.mov
   done
 
@@ -123,29 +117,29 @@ convert-all-mp4-to-mov-hq ()
 }
 
 # help:convert-mov-to-mp4:Converts mov video to mp4 with AAC
-convert-mov-to-mp4 () {
+convert-mov-to-mp4() {
   local filename
-  if [ "$1" ] ; then
+  if [ "$1" ]; then
     filename="$1"
   else
     read -p "File: " filename
   fi
-  if [ ! -f "$filename" ] ; then
+  if [ ! -f "$filename" ]; then
     return 1
   fi
   ffmpeg -i "$filename" -vcodec h264 -acodec aac ${filename%.*}_h265.mp4
 }
 
 # help:convert-mp4-h264-to-h265:Converts mp4 h264 video to h265
-convert-mp4-h264-to-h265 () {
+convert-mp4-h264-to-h265() {
   local filename
-  if [ "$1" ] ; then
+  if [ "$1" ]; then
     filename="$1"
   else
     read -p "File: " filename
   fi
-  if [ ! -f "$filename" ] ; then
+  if [ ! -f "$filename" ]; then
     return 1
   fi
-  ffmpeg -i "$filename" -c:v libx265 -vtag hvc1  ${filename%.*}_h265.mp4
+  ffmpeg -i "$filename" -c:v libx265 -vtag hvc1 ${filename%.*}_h265.mp4
 }
