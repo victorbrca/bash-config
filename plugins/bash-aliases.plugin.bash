@@ -305,6 +305,9 @@ diff () {
   fi
 }
 
+# help:realdiff:Shortcut to use the real diff
+alias realdiff='command diff'
+
 # help:aliases:Show loaded aliases
 aliases ()
 {
