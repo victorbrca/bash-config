@@ -181,16 +181,3 @@ dfu () {
     echo "duf is not installed"
   fi
 }
-
-# help:less:Uses vim as less for syntax highlight
-#alias less='/usr/share/vim/vim*/macros/less.sh'
-#alias less='vim -R'
-less ()
-{
-  if [ -p /dev/stdin ] ; then
-    cat | vim -R -
-  else
-    vim -R "$1"
-  fi
-}
-
