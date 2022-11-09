@@ -62,3 +62,19 @@ netgrep () {
   echo -e "$_header\n$_val"
   unset _header _val
 }
+
+# help:get-ip-info:Gets IP information
+get-ip-info() {
+  # https://ipwhois.io/documentation
+  # Other options - https://ip-api.com/docs/api:json
+  if [ ! "$1" ] ; then
+    echo "Usage: get-ip-info [ipv4]"
+    return 0
+  fi
+  if [[ ! $1 =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    echo "Please provide a valid IP"
+    return 1
+  fi
+
+  curl -s "https://ipwho.is/${1}" | jq -r
+}
