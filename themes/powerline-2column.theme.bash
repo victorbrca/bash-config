@@ -205,7 +205,7 @@ _get_battery_info () {
 _date ()
 {
   local date_now
-  date_now="$(date '+%H:%M%P')"
+  date_now="$(date '+%I:%M%p')"
   let ps1r_cnt+=${#date_now}
   date_str="${PS_White}${On_Black}${PS_Black}${PS_On_White} ${date_now} ${PS_Color_Off}"
 
